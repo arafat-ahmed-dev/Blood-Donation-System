@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="20d08642-c51c-4712-9a7c-2ed5fa426e0a" name="Changes" comment="implement interview session">
+      <change afterPath="$PROJECT_DIR$/app/(root)/interview/[id]/feedback/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(root)/interview/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(root)/interview/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/InterviewCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/InterviewCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/action/auth.action.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/action/auth.action.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;arafat-ahmed-dev&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/arafat-ahmed-dev/Ai-Interview-Agent.git&quot;,
+    &quot;accountId&quot;: &quot;641d1c0c-32fc-42da-bd7b-fa9e281b6a55&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2ulVE0I6CPerbLDLwN8iCcJBGFT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;js.linters.configure.manually.selectedeslint&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/arafa/Documents/Arafat/ai-interview-agent&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;C:\\Users\\arafa\\Documents\\Arafat\\ai-interview-agent\\node_modules\\eslint&quot;,
+    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\arafa\\Documents\\Arafat\\ai-interview-agent\\node_modules\\prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\arafa\\Documents\\Arafat\\ai-interview-agent\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="ReactDesignerToolWindowState">
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.intellij.reactbuddy.reactComponents" value="false" />
+        <entry key="com.intellij.reactbuddy.reactInspector" value="false" />
+        <entry key="com.intellij.reactbuddy.storybook" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\arafa\Documents\Arafat\ai-interview-agent\lib" />
+      <recent name="C:\Users\arafa\Documents\Arafat\ai-interview-agent" />
+      <recent name="C:\Users\arafa\Documents\Arafat\ai-interview-agent\public" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-WS-243.26053.12" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="20d08642-c51c-4712-9a7c-2ed5fa426e0a" name="Changes" comment="" />
+      <created>1742823033001</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742823033001</updated>
+      <workItem from="1742823034112" duration="263000" />
+      <workItem from="1742823343050" duration="147000" />
+      <workItem from="1742823496857" duration="120000" />
+      <workItem from="1742823624825" duration="45000" />
+      <workItem from="1742823676015" duration="374000" />
+      <workItem from="1742834672696" duration="4785000" />
+      <workItem from="1742839518058" duration="13222000" />
+      <workItem from="1742883690079" duration="3229000" />
+      <workItem from="1742901372127" duration="2626000" />
+      <workItem from="1742908320321" duration="3363000" />
+      <workItem from="1742914737620" duration="1122000" />
+      <workItem from="1742927390047" duration="3364000" />
+      <workItem from="1742977329914" duration="2886000" />
+    </task>
+    <task id="LOCAL-00001" summary="setup the project and the authform">
+      <option name="closed" value="true" />
+      <created>1742842800968</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1742842800968</updated>
+    </task>
+    <task id="LOCAL-00002" summary="setup home page ui">
+      <option name="closed" value="true" />
+      <created>1742847389561</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1742847389561</updated>
+    </task>
+    <task id="LOCAL-00003" summary="setup home page ui">
+      <option name="closed" value="true" />
+      <created>1742847534479</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1742847534479</updated>
+    </task>
+    <task id="LOCAL-00004" summary="install and setup firebase admin and client file">
+      <option name="closed" value="true" />
+      <created>1742849096224</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1742849096224</updated>
+    </task>
+    <task id="LOCAL-00005" summary="add the hole logic for sign-in and sign-up and connect to firebase authentication">
+      <option name="closed" value="true" />
+      <created>1742851465174</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1742851465174</updated>
+    </task>
+    <task id="LOCAL-00006" summary="protect root route and auth route">
+      <option name="closed" value="true" />
+      <created>1742853500630</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1742853500630</updated>
+    </task>
+    <task id="LOCAL-00007" summary="implement interview generation page ui">
+      <option name="closed" value="true" />
+      <created>1742886699946</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1742886699946</updated>
+    </task>
+    <task id="LOCAL-00008" summary="implement interview generation and generate the question by using gemini and save it in the database">
+      <option name="closed" value="true" />
+      <created>1742903239871</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1742903239871</updated>
+    </task>
+    <task id="LOCAL-00009" summary="eslint config">
+      <option name="closed" value="true" />
+      <created>1742903623937</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1742903623937</updated>
+    </task>
+    <task id="LOCAL-00010" summary="remove eslint-config-standard eslint-plugin-tailwindcss eslint-config-prettier prettier">
+      <option name="closed" value="true" />
+      <created>1742903820702</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1742903820702</updated>
+    </task>
+    <task id="LOCAL-00011" summary="show generated interviews on the homepage">
+      <option name="closed" value="true" />
+      <created>1742930770208</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1742930770208</updated>
+    </task>
+    <task id="LOCAL-00012" summary="implement interview session">
+      <option name="closed" value="true" />
+      <created>1742979111391</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1742979111391</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="setup the project and the authform" />
+    <MESSAGE value="setup home page ui" />
+    <MESSAGE value="install and setup firebase admin and client file" />
+    <MESSAGE value="add the hole logic for sign-in and sign-up and connect to firebase authentication" />
+    <MESSAGE value="protect root route and auth route" />
+    <MESSAGE value="implement interview generation page ui" />
+    <MESSAGE value="implement interview generation and generate the question by using gemini and save it in the database" />
+    <MESSAGE value="eslint config" />
+    <MESSAGE value="remove eslint-config-standard eslint-plugin-tailwindcss eslint-config-prettier prettier" />
+    <MESSAGE value="show generated interviews on the homepage" />
+    <MESSAGE value="implement interview session" />
+    <option name="LAST_COMMIT_MESSAGE" value="implement interview session" />
+  </component>
+</project>
