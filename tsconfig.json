@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -26,16 +25,18 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "target": "ES2017"
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "build/types/**/*.ts",
+    "globals.d.ts",
     "next-env.d.ts",
+    "src/hooks/useAuthSession.ts",
     "out/types/**/*.ts"
-, "src/lib/mongodb.ts"  ],
+  ],
   "exclude": [
     "node_modules"
   ]

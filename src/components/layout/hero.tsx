@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { connectToDB } from "@/lib/mongodb"
 
-export async function Hero() {
-  const connection = await connectToDB()
+export function Hero() {
+  // const connection = await connectToDB()
   
   return (
     <section className="relative bg-gradient-to-r from-red-600 to-red-700 py-20 md:py-32">
