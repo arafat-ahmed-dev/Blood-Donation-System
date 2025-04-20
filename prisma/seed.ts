@@ -21,21 +21,21 @@ const bloodTypes = [
 
 // City coordinates for location diversity
 const cityCoordinates = [
-  { city: 'New York', coords: [-73.935242, 40.730610] },
-  { city: 'Los Angeles', coords: [-118.243683, 34.052235] },
-  { city: 'Chicago', coords: [-87.623177, 41.881832] },
-  { city: 'Houston', coords: [-95.369803, 29.760427] },
-  { city: 'Phoenix', coords: [-112.074037, 33.448377] },
-  { city: 'Philadelphia', coords: [-75.165222, 39.952583] },
-  { city: 'San Antonio', coords: [-98.491142, 29.424122] },
-  { city: 'San Diego', coords: [-117.161084, 32.715738] },
-  { city: 'Dallas', coords: [-96.796988, 32.776664] },
-  { city: 'San Jose', coords: [-121.893028, 37.335480] },
-  { city: 'Austin', coords: [-97.743061, 30.267153] },
-  { city: 'Jacksonville', coords: [-81.655651, 30.332184] },
-  { city: 'Fort Worth', coords: [-97.330766, 32.755488] },
-  { city: 'Columbus', coords: [-82.998794, 39.961176] },
-  { city: 'San Francisco', coords: [-122.419416, 37.774929]}
+  { city: 'Sylhet', state: 'Sylhet', address: 'Bahubol Road #01' },
+  { city: 'Dhaka', state: 'Dhaka', address: 'Gulshan Avenue #02' },
+  { city: 'Chittagong', state: 'Chittagong', address: 'Agrabad Commercial Area #03' },
+  { city: 'Rajshahi', state: 'Rajshahi', address: 'Shaheb Bazar #04' },
+  { city: 'Khulna', state: 'Khulna', address: 'Boyra Main Road #05' },
+  { city: 'Barisal', state: 'Barisal', address: 'Band Road #06' },
+  { city: 'Rangpur', state: 'Rangpur', address: 'Station Road #07' },
+  { city: 'Mymensingh', state: 'Mymensingh', address: 'Ganginarpar Road #08' },
+  { city: 'Comilla', state: 'Comilla', address: 'Kandirpar Road #09' },
+  { city: 'Gazipur', state: 'Dhaka', address: 'Tongi Industrial Area #10' },
+  { city: 'Narayanganj', state: 'Dhaka', address: 'Chashara Road #11' },
+  { city: 'Jessore', state: 'Khulna', address: 'Railway Station Road #12' },
+  { city: 'Cox\'s Bazar', state: 'Chittagong', address: 'Laboni Beach Road #13' },
+  { city: 'Bogura', state: 'Rajshahi', address: 'Satmatha Road #14' },
+  { city: 'Pabna', state: 'Rajshahi', address: 'Hemayetpur Road #15' }
 ];
 
 async function main() {
@@ -77,9 +77,10 @@ async function main() {
           gender,
           role: 'donor',
           bloodType, // Use enum value
-          location: {
-            type: 'Point',
-            coordinates: location.coords,
+          location: {       
+              city: location.city,
+              state: location.state,
+              address: location.address,
           },
           eligibility,
           nextEligibleDate,
@@ -116,8 +117,9 @@ async function main() {
           role: 'recipient',
           bloodType, // Use enum value
           location: {
-            type: 'Point',
-            coordinates: location.coords,
+              city: location.city,
+              state: location.state,
+              address: location.address,
           },
           eligibility: true,
           nextEligibleDate: null,
@@ -147,8 +149,9 @@ async function main() {
           role: 'recipient',
           bloodType, // Use BloodType enum
           location: {
-            type: 'Point',
-            coordinates: location.coords,
+              city: location.city,
+              state: location.state,
+              address: location.address,
           },
           eligibility: true,
           nextEligibleDate: null,

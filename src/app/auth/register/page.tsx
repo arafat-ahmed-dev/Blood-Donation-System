@@ -1,167 +1,282 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-
-export const metadata: Metadata = {
-  title: "Register",
-  description: "Create a new Rokto account to become a blood donor and help save lives."
-}
+// Blood types for registration
+const bloodTypes = [
+    { value: "A_POSITIVE", label: "A+" },
+    { value: "A_NEGATIVE", label: "A-" },
+    { value: "B_POSITIVE", label: "B+" },
+    { value: "B_NEGATIVE", label: "B-" },
+    { value: "AB_POSITIVE", label: "AB+" },
+    { value: "AB_NEGATIVE", label: "AB-" },
+    { value: "O_POSITIVE", label: "O+" },
+    { value: "O_NEGATIVE", label: "O-" },
+];
 
 export default function RegisterPage() {
-  return (
-    <>
-      <Header />
-      <main className="py-16 bg-primary/5">
-        <div className="container">
-          <div className="max-w-xl mx-auto">
-            <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
+    const router = useRouter();
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        dateOfBirth: "",
+        gender: "",
+        bloodType: "",
+    });
+    const [otp, setOtp] = useState("");
+    const [userId, setUserId] = useState("");
+    const [step, setStep] = useState<"form" | "otp">("form");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
-            <Card>
-              <CardHeader className="space-y-1">
-                <div className="flex justify-center mb-2">
-                  <div className="relative h-10 w-6">
-                    <div className="blood-drop-pulse h-full w-full bg-primary rounded-b-full rounded-t-[50%]" />
-                  </div>
-                </div>
-                <CardTitle className="text-2xl text-center">Create an Account</CardTitle>
-                <CardDescription className="text-center">
-                  Register to become a blood donor and help save lives
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Doe" />
-                  </div>
-                </div>
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="flex">
-                    <div className="inline-flex h-10 items-center justify-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
-                      +880
-                    </div>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="1XX XXX XXXX"
-                      className="rounded-l-none"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    We'll send a verification code to this number
-                  </p>
-                </div>
+    const handleSelectChange = (name: string, value: string) => {
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email (Optional)</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@example.com"
-                  />
-                </div>
+    const registerUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="bloodGroup">Blood Group</Label>
-                    <Select>
-                      <SelectTrigger id="bloodGroup">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="A+">A+</SelectItem>
-                        <SelectItem value="A-">A-</SelectItem>
-                        <SelectItem value="B+">B+</SelectItem>
-                        <SelectItem value="B-">B-</SelectItem>
-                        <SelectItem value="AB+">AB+</SelectItem>
-                        <SelectItem value="AB-">AB-</SelectItem>
-                        <SelectItem value="O+">O+</SelectItem>
-                        <SelectItem value="O-">O-</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gender">Gender</Label>
-                    <Select>
-                      <SelectTrigger id="gender">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+        try {
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
 
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location/Area</Label>
-                  <Input
-                    id="location"
-                    placeholder="Dhanmondi, Dhaka"
-                  />
-                </div>
+            const data = await response.json();
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" />
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 8 characters long
-                  </p>
-                </div>
+            if (!response.ok) {
+                throw new Error(data.error || "Registration failed");
+            }
 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                  />
-                  <label htmlFor="terms" className="text-sm text-muted-foreground">
-                    I agree to the{" "}
-                    <Link href="/terms" className="text-primary hover:underline">
-                      Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="/privacy-policy" className="text-primary hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </label>
-                </div>
+            setUserId(data.userId);
+            setStep("otp");
+        } catch (err) {
+            console.log(err);
+            
+            setError(err instanceof Error ? err.message : "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                <Button className="w-full">Create Account</Button>
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-4">
-                <div className="text-sm text-center text-muted-foreground">
-                  Already have an account?{" "}
-                  <Link href="/auth/login" className="text-primary hover:underline">
-                    Log in
-                  </Link>
-                </div>
-              </CardFooter>
+    const verifyOTP = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+
+        try {
+            const response = await fetch("/api/verify-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    phoneNumber: formData.phoneNumber,
+                    otp,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "OTP verification failed");
+            }
+
+            router.push("/login");
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Invalid OTP");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 py-12">
+            <Card className="w-full max-w-lg">
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-2xl font-bold text-center">Register for Rokto</CardTitle>
+                    <CardDescription className="text-center">
+                        {step === "form"
+                            ? "Create an account to become a blood donor"
+                            : "Enter the OTP sent to your phone"}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {step === "form" ? (
+                        <form onSubmit={registerUser} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="firstName">First Name</Label>
+                                    <Input
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="First Name"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="lastName">Last Name</Label>
+                                    <Input
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Last Name"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="your.email@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="phoneNumber">Phone Number</Label>
+                                <Input
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    type="tel"
+                                    placeholder="+880XXXXXXXXXX"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                                    <Input
+                                        id="dateOfBirth"
+                                        name="dateOfBirth"
+                                        type="date"
+                                        value={formData.dateOfBirth}
+                                        onChange={handleChange}
+                                        required
+                                        className="[&::-webkit-calendar-picker-indicator]:order-3"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="gender">Gender</Label>
+                                    <Select
+                                        onValueChange={(value) => handleSelectChange("gender", value)}
+                                        value={formData.gender}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Gender" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="male">Male</SelectItem>
+                                            <SelectItem value="female">Female</SelectItem>
+                                            <SelectItem value="other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="bloodType">Blood Type</Label>
+                                <Select
+                                    onValueChange={(value) => handleSelectChange("bloodType", value)}
+                                    value={formData.bloodType}
+                                    required
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Blood Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {bloodTypes.map((type) => (
+                                            <SelectItem key={type.value} value={type.value}>
+                                                {type.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {error && <p className="text-sm text-red-500">{error}</p>}
+                            <Button type="submit" className="w-full" disabled={loading}>
+                                {loading ? "Registering..." : "Register"}
+                            </Button>
+                        </form>
+                    ) : (
+                        <form onSubmit={verifyOTP} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="otp">Enter OTP</Label>
+                                <Input
+                                    id="otp"
+                                    type="text"
+                                    placeholder="Enter 6-digit OTP"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    required
+                                    maxLength={6}
+                                />
+                                <p className="text-xs text-gray-500">
+                                    OTP has been sent to {formData.phoneNumber}
+                                </p>
+                            </div>
+                            {error && <p className="text-sm text-red-500">{error}</p>}
+                            <Button type="submit" className="w-full" disabled={loading}>
+                                {loading ? "Verifying..." : "Verify OTP"}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => setStep("form")}
+                            >
+                                Back to Registration
+                            </Button>
+                        </form>
+                    )}
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <p className="text-sm text-gray-500">
+                        Already have an account?{" "}
+                        <Link href="/auth/login" className="text-primary hover:underline">
+                            Login
+                        </Link>
+                    </p>
+                </CardFooter>
             </Card>
-          </div>
         </div>
-      </main>
-      <Footer />
-    </>
-  )
+    );
 }

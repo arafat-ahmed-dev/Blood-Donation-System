@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Filter, Clock, User, Droplet, MapPin } from "lucide-react";
 
-import { Button } from "./../../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./../../../components/ui/card";
-import { Label } from "./../../../components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./../../../components/ui/select";
+import { Button } from "../../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Label } from "../../../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import { AREAS as areas, BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
-import { formatBloodGroup } from "@/lib/utils";
 
 interface Donor {
     id: number;
     name: string;
     bloodGroup: string;
-    location: string;
+    location: Location;
     lastDonation: string;
     donationCount: number;
     available: boolean;
@@ -31,11 +31,39 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
         availability: "any",
     });
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    useEffect(() => {
+        const bloodGroup = searchParams.get("bloodGroup") || "any";
+        const location = searchParams.get("location") || "any";
+        const availability = searchParams.get("availability") || "any";
+
+        setFilters({ bloodGroup, location, availability });
+    }, [searchParams]);
+
+    const applyFilters = () => {
+        const params = new URLSearchParams(window.location.search);
+
+        if (filters.bloodGroup !== "any") {
+            params.set("bloodGroup", filters.bloodGroup);
+        }
+        if (filters.location !== "any") {
+            params.set("location", filters.location);
+        }
+        if (filters.availability !== "any") {
+            params.set("availability", filters.availability);
+        }
+
+        router.push(`/search?${params.toString()}`);
+    };
+
+
     const filteredDonors = donors.filter(donor => {
         const matchesBloodGroup =
             filters.bloodGroup === "any" || donor.bloodGroup === filters.bloodGroup;
         const matchesLocation =
-            filters.location === "any" || donor.location === filters.location;
+            filters.location === "any" || donor.location.state === filters.location;
         const matchesAvailability =
             filters.availability === "any" ||
             (filters.availability === "available" && donor.available) ||
@@ -60,6 +88,7 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="bloodGroup">Blood Group</Label>
                             <Select
+                                value={filters.bloodGroup}
                                 onValueChange={(value: string) =>
                                     setFilters(prev => ({ ...prev, bloodGroup: value }))
                                 }
@@ -81,6 +110,7 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="location">Location</Label>
                             <Select
+                                value={filters.location}
                                 onValueChange={(value: string) =>
                                     setFilters(prev => ({ ...prev, location: value }))
                                 }
@@ -102,6 +132,7 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="availability">Availability</Label>
                             <Select
+                                value={filters.availability}
                                 onValueChange={(value: string) =>
                                     setFilters(prev => ({ ...prev, availability: value }))
                                 }
@@ -117,7 +148,7 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                             </Select>
                         </div>
 
-                        <Button className="w-full" onClick={() => console.log(filters)}>
+                        <Button className="w-full" onClick={applyFilters}>
                             Apply Filters
                         </Button>
                     </CardContent>
@@ -142,7 +173,6 @@ interface DonorCardProps {
 
 function DonorCard({ donor }: DonorCardProps) {
     const initials = donor.name.split(' ').map(n => n[0]).join('');
-    const bloodGroup = formatBloodGroup(donor.bloodGroup);
 
     return (
         <Card className={`hover:shadow-md transition-shadow ${!donor.available ? 'border-muted' : ''}`}>
@@ -164,12 +194,12 @@ function DonorCard({ donor }: DonorCardProps) {
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <Droplet className="h-3.5 w-3.5" />
-                            <span className="font-medium text-primary">{bloodGroup}</span>
+                            <span className="font-medium text-primary">{donor.bloodGroup}</span>
                         </div>
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <MapPin className="h-3.5 w-3.5" />
-                            <span>{donor.location}</span>
+                            <span>{donor.location.address}, {donor.location.state}, {donor.location.city}</span>
                         </div>
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">

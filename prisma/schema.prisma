@@ -1,6 +1,7 @@
 generator client {
     provider = "prisma-client-js"
 }
+
 datasource db {
     provider = "mongodb"
     url      = env("DATABASE_URI")
@@ -15,7 +16,7 @@ model User {
     lastName         String
     dateOfBirth      DateTime
     gender           String?
-    role             String    @default("donor")
+    role             Role      @default(donor)
     bloodType        BloodType
     location         Json? // GeoJSON for coordinates
     eligibility      Boolean   @default(true)
@@ -90,14 +91,14 @@ enum BloodType {
 }
 
 enum Role {
-    Donors
-    Recipients
-    Hospitals
-    Blood_banks
+    donor
+    recipient
+    hospital
+    blood_bank
 }
 
 enum Gender {
-    Male 
-    Female 
+    Male
+    Female
     Other
 }
