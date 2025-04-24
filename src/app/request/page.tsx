@@ -279,7 +279,7 @@ export default function RequestBloodPage() {
                       If you're facing an emergency or need assistance with your request, call our 24/7 helpline.
                     </p>
                     <div className="bg-primary/10 p-3 rounded-md text-center">
-                      <p className="text-sm font-medium">Rokto Helpline</p>
+                      <p className="text-sm font-medium">Rokto Shetu Helpline</p>
                       <p className="text-lg font-bold text-primary">+880 1712-345678</p>
                     </div>
                   </div>

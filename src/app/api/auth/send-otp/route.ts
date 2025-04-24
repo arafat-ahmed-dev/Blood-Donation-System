@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   }
 
   await twilioClient.messages.create({
-    body: `Your Rokto verification code is: ${otp}. Valid for 10 minutes.`,
+    body: `Your Rokto Shetu verification code is: ${otp}. Valid for 10 minutes.`,
     from: process.env.TWILIO_phone_NUMBER,
     to: phone,
   })

@@ -17,14 +17,14 @@ const TESTIMONIALS = [
     id: 2,
     name: "Farida Rahman",
     role: "Regular Donor",
-    quote: "Being a blood donor gives me immense satisfaction. Rokto makes it easy to connect with people who need blood, and the process is very smooth.",
+    quote: "Being a blood donor gives me immense satisfaction. Rokto Shetu makes it easy to connect with people who need blood, and the process is very smooth.",
     image: "/testimonials/testimonial-2.jpg"
   },
   {
     id: 3,
     name: "Dr. Alam Chowdhury",
     role: "Medical Professional",
-    quote: "As a doctor, I've seen how critical timely blood donations can be. Rokto has become an essential tool for us to find donors quickly in emergency situations.",
+    quote: "As a doctor, I've seen how critical timely blood donations can be. Rokto Shetu has become an essential tool for us to find donors quickly in emergency situations.",
     image: "/testimonials/testimonial-3.jpg"
   }
 ]

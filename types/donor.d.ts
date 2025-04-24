@@ -1,7 +1,7 @@
 interface Location {
-  city: string;
-  state: string;
   address: string;
+  state: string;
+  city: string;
 }
 
 interface donation {

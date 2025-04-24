@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, X } from "lucide-react"
+import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu"
@@ -17,13 +18,19 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-8 w-8">
-              {/* Rokto logo with blood drop */}
+              {/* Rokto Shetu logo with blood drop */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="blood-drop-pulse h-5 w-3 bg-primary rounded-b-full rounded-t-[50%]" />
+                {/* <div className="blood-drop-pulse h-5 w-3 bg-primary rounded-b-full rounded-t-[50%]" /> */}
+                <Image
+                  src="/logo.svg"
+                  alt="Rokto Shetu Logo"
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-full" />
               </div>
             </div>
             <span className="hidden sm:inline-block text-xl font-bold text-primary">
-              ROKTO
+              Rokto Shetu
             </span>
           </Link>
         </div>
@@ -55,7 +62,7 @@ export function Header() {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link href="/donor/search">
+                        <Link href="/donor/list">
                           <div className="text-sm font-medium leading-none">Search Donors</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Search by location and blood type
@@ -75,7 +82,7 @@ export function Header() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/about">
+                  <Link href="/about" className="pl-3">
                     About
                   </Link>
                 </NavigationMenuLink>
@@ -106,7 +113,13 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden p-4 pt-0 bg-background border-b">
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -100, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="md:hidden p-4 pt-0 bg-background border-b"
+        >
           <nav className="grid gap-2">
             <Link
               href="/"
@@ -162,7 +175,7 @@ export function Header() {
               </Button>
             </div>
           </nav>
-        </div>
+        </motion.div>
       )}
     </header>
   )

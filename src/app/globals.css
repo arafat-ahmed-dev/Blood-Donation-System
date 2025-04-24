@@ -12,7 +12,7 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 85% 45%; /* Deeper red for Rokto */
+    --primary: 0 85% 45%; /* Deeper red for Rokto Shetu */
     --primary-foreground: 0 85.7% 97.3%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -86,7 +86,7 @@
   @apply bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full font-medium;
 }
 
-/* Custom sections for the Rokto website */
+/* Custom sections for the Rokto Shetu website */
 .hero-gradient {
   background: linear-gradient(135deg, hsl(0 85% 45% / 0.9), hsl(0 85% 35% / 0.85));
 }

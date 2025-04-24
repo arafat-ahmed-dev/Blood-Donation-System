@@ -5,9 +5,9 @@ export function HowItWorks() {
     <section className="py-20 bg-white">
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Rokto Works</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Rokto Shetu Works</h2>
           <p className="text-lg text-muted-foreground">
-            Rokto connects blood donors with people in need through a simple process
+            Rokto Shetu connects blood donors with people in need through a simple process
           </p>
         </div>
 

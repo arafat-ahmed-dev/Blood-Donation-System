@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import DonorSearchClient from "./DonorSearchClient";
-import { ITEM_PER_PAGE } from "@/lib/constants";
+import { DEFAULT_LOCATION, ITEM_PER_PAGE } from "@/lib/constants";
 import { formatBloodGroup } from "@/lib/utils";
 import prisma from "../../../../prisma";
 import Pagination from "@/components/layout/Pagination";
@@ -12,22 +12,28 @@ export default async function DonorSearchPage({ searchParams }: {
 }) {
   const { page, ...queryParams } = searchParams;
   const p = page ? parseInt(page) : 1;
+  console.log(queryParams);
 
   const query: Prisma.UserWhereInput = {
-    eligibility : true, 
+    eligibility: true,
+    role: "donor",
   };
 
   for (const [key, value] of Object.entries(queryParams)) {
     if (value !== undefined) {
+      
       switch (key) {
         case "bloodGroup":
-          query.bloodType = BloodType[value as keyof typeof BloodType] || undefined;
+          // Convert the blood group to the format used in the database
+          const blood = value.replace("-", "_").toUpperCase();
+          query.bloodType = BloodType[blood as keyof typeof BloodType] || undefined;
           break;
-        case "location":
-        query.location = {
-          
-        };
-          break;
+        // case "location":
+        //   query.location =
+        //     { 
+        //       // state: { contains: value, mode: "insensitive" } 
+        //     }
+        //   break;
         default:
           break;
       }
@@ -36,7 +42,7 @@ export default async function DonorSearchPage({ searchParams }: {
 
   const [data, count] = await prisma.$transaction([
     prisma.user.findMany({
-      where: { role: "donor" },
+      where: query,
       select: {
         id: true,
         firstName: true,
@@ -54,9 +60,9 @@ export default async function DonorSearchPage({ searchParams }: {
       take: ITEM_PER_PAGE,
       skip: (p - 1) * ITEM_PER_PAGE,
     }),
-    prisma.user.count({ where: { role: "donor" } }),
+    prisma.user.count({ where: query }),
   ]);
-  console.log(data , count);
+  console.log(data, count);
 
   const donors = await Promise.all(
     data.map(async (donor, index) => {
@@ -71,7 +77,7 @@ export default async function DonorSearchPage({ searchParams }: {
         id: donor.id ? Number(donor.id) : index,
         name: `${donor.firstName} ${donor.lastName}`,
         bloodGroup: formatBloodGroup(donor.bloodType.replace("_", "-")),
-        location: donor.location || null,
+        location: donor.location ?? DEFAULT_LOCATION,
         lastDonation: formattedDate
           ? `Eligible after ${formattedDate}`
           : "Available now",

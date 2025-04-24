@@ -9,6 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Label } from "../../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import { AREAS as areas, BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
+import { formatBloodGroup, getBloodGroupKey } from "@/lib/utils";
+
+interface Location {
+    address: string;
+    state: string;
+    city: string;
+}
 
 interface Donor {
     id: number;
@@ -25,52 +32,77 @@ interface DonorSearchClientProps {
 }
 
 export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
-    const [filters, setFilters] = useState({
+    // State to track filter inputs
+    const [filterInputs, setFilterInputs] = useState({
         bloodGroup: "any",
         location: "any",
         availability: "any",
     });
+    console.log(filterInputs);
+    
+    // State to track if we're loading new data
+    const [isLoading, setIsLoading] = useState(false);
 
     const searchParams = useSearchParams();
     const router = useRouter();
 
+    // Initialize filters from URL on component mount and when URL changes
     useEffect(() => {
-        const bloodGroup = searchParams.get("bloodGroup") || "any";
+        // Always default to "any" if the parameter doesn't exist
+        // const bloodValue = formatBloodGroup(searchParams.get("bloodGroup") || "any");
+        const bloodGroup = formatBloodGroup(searchParams.get("bloodGroup") || "any") || "any";
         const location = searchParams.get("location") || "any";
         const availability = searchParams.get("availability") || "any";
 
-        setFilters({ bloodGroup, location, availability });
+        setFilterInputs({ bloodGroup, location, availability });
     }, [searchParams]);
 
-    const applyFilters = () => {
-        const params = new URLSearchParams(window.location.search);
+    // Handle filter button click
+    const handleApplyFilters = () => {
+        setIsLoading(true);
 
-        if (filters.bloodGroup !== "any") {
-            params.set("bloodGroup", filters.bloodGroup);
-        }
-        if (filters.location !== "any") {
-            params.set("location", filters.location);
-        }
-        if (filters.availability !== "any") {
-            params.set("availability", filters.availability);
+        // Start with a new URLSearchParams object
+        const params = new URLSearchParams();
+
+        // Only keep page parameter if it exists and we're wiping all filters
+        const currentPage = searchParams.get("page");
+        if (currentPage && filterInputs.bloodGroup === "any" &&
+            filterInputs.location === "any" &&
+            filterInputs.availability === "any") {
+            params.set("page", currentPage);
         }
 
-        router.push(`/search?${params.toString()}`);
+        // Only add parameters for non-"any" filters
+        if (filterInputs.bloodGroup !== "any") {
+            const formattedBlood = getBloodGroupKey(filterInputs.bloodGroup);
+            params.set("bloodGroup", formattedBlood?.toString() || filterInputs.bloodGroup);
+        }
+
+        if (filterInputs.location !== "any") {
+            params.set("location", filterInputs.location);
+        }
+
+        if (filterInputs.availability !== "any") {
+            params.set("availability", filterInputs.availability);
+        }
+
+        // Reset to page 1 if any filters are applied
+        if (filterInputs.bloodGroup !== "any" ||
+            filterInputs.location !== "any" ||
+            filterInputs.availability !== "any") {
+            params.set("page", "1");
+        }
+
+        // Build the URL - use just pathname if no parameters
+        const queryString = params.toString();
+        const url = queryString
+            ? `${window.location.pathname}?${queryString}`
+            : window.location.pathname;
+
+        // Navigate to the new URL
+        router.push(url);
+        setIsLoading(false);
     };
-
-
-    const filteredDonors = donors.filter(donor => {
-        const matchesBloodGroup =
-            filters.bloodGroup === "any" || donor.bloodGroup === filters.bloodGroup;
-        const matchesLocation =
-            filters.location === "any" || donor.location.state === filters.location;
-        const matchesAvailability =
-            filters.availability === "any" ||
-            (filters.availability === "available" && donor.available) ||
-            (filters.availability === "unavailable" && !donor.available);
-
-        return matchesBloodGroup && matchesLocation && matchesAvailability;
-    }).sort((a, b) => Number(b.available) - Number(a.available));
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -88,13 +120,15 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="bloodGroup">Blood Group</Label>
                             <Select
-                                value={filters.bloodGroup}
+                                value={filterInputs.bloodGroup}
                                 onValueChange={(value: string) =>
-                                    setFilters(prev => ({ ...prev, bloodGroup: value }))
+                                    setFilterInputs(prev => ({ ...prev, bloodGroup: value }))
                                 }
                             >
                                 <SelectTrigger id="bloodGroup">
-                                    <SelectValue placeholder="Select blood group" />
+                                    <SelectValue placeholder="Select blood group">
+                                        {filterInputs.bloodGroup === "any" ? "Any" : filterInputs.bloodGroup}
+                                    </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="any">Any</SelectItem>
@@ -110,13 +144,15 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="location">Location</Label>
                             <Select
-                                value={filters.location}
+                                value={filterInputs.location}
                                 onValueChange={(value: string) =>
-                                    setFilters(prev => ({ ...prev, location: value }))
+                                    setFilterInputs(prev => ({ ...prev, location: value }))
                                 }
                             >
                                 <SelectTrigger id="location">
-                                    <SelectValue placeholder="Select area/city" />
+                                    <SelectValue placeholder="Select area/city">
+                                        {filterInputs.location === "any" ? "Any" : filterInputs.location}
+                                    </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="any">Any</SelectItem>
@@ -132,13 +168,16 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         <div className="space-y-2">
                             <Label htmlFor="availability">Availability</Label>
                             <Select
-                                value={filters.availability}
+                                value={filterInputs.availability}
                                 onValueChange={(value: string) =>
-                                    setFilters(prev => ({ ...prev, availability: value }))
+                                    setFilterInputs(prev => ({ ...prev, availability: value }))
                                 }
                             >
                                 <SelectTrigger id="availability">
-                                    <SelectValue placeholder="Select availability" />
+                                    <SelectValue placeholder="Select availability">
+                                        {filterInputs.availability === "any" ? "Any" :
+                                            filterInputs.availability === "available" ? "Available Now" : "Not Available"}
+                                    </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="any">Any</SelectItem>
@@ -148,8 +187,12 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                             </Select>
                         </div>
 
-                        <Button className="w-full" onClick={applyFilters}>
-                            Apply Filters
+                        <Button
+                            className="w-full"
+                            onClick={handleApplyFilters}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Loading..." : "Apply Filters"}
                         </Button>
                     </CardContent>
                 </Card>
@@ -158,9 +201,15 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
             {/* Donors grid */}
             <div className="lg:col-span-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredDonors.map((donor, index) => (
-                        <DonorCard key={donor.id || `donor-${index}`} donor={donor} />
-                    ))}
+                    {donors.length > 0 ? (
+                        donors.map((donor, index) => (
+                            <DonorCard key={donor.id || `donor-${index}`} donor={donor} />
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-8">
+                            <p className="text-muted-foreground">No donors found matching your criteria.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -10,7 +10,7 @@ import { connectToDB } from "@/lib/mongodb"
 
 export function Hero() {
   // const connection = await connectToDB()
-  
+
   return (
     <section className="relative bg-gradient-to-r from-red-600 to-red-700 py-20 md:py-32">
       {/* Pattern overlay */}
@@ -24,7 +24,7 @@ export function Hero() {
               Save Lives
             </h1>
             <p className="text-lg md:text-xl max-w-lg opacity-90">
-              Rokto is a free platform connecting blood donors with those in need across Bangladesh.
+              Rokto Shetu is a free platform connecting blood donors with those in need across Bangladesh.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button size="lg" asChild>

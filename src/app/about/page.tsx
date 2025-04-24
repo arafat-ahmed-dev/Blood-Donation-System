@@ -12,7 +12,7 @@ import { CTA } from "@/components/layout/cta"
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about Rokto, a real-time free platform to help blood searchers connect voluntary blood donors around Bangladesh."
+  description: "Learn about Rokto Shetu Shetu, a real-time free platform to help blood searchers connect voluntary blood donors around Bangladesh."
 }
 
 export default function AboutPage() {
@@ -27,7 +27,7 @@ export default function AboutPage() {
 
           <div className="container relative z-10">
             <div className="max-w-3xl mx-auto text-center text-white">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">About Rokto</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">About Rokto Shetu Shetu</h1>
               <p className="text-xl opacity-90 mb-8">
                 Connecting blood donors with those in need across Bangladesh
               </p>
@@ -140,7 +140,7 @@ export default function AboutPage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4">Our Story</h2>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  How Rokto grew from a small initiative to the largest blood donation network in Bangladesh
+                  How Rokto Shetu grew from a small initiative to the largest blood donation network in Bangladesh
                 </p>
               </div>
 
@@ -151,7 +151,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">2018: The Beginning</h3>
                   <p className="text-muted-foreground mb-4">
-                    Rokto started as a small initiative by a group of university students who witnessed
+                    Rokto Shetu started as a small initiative by a group of university students who witnessed
                     firsthand the challenges of finding blood donors during emergencies.
                   </p>
                 </div>
@@ -173,7 +173,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">2020-2021: Pandemic Response</h3>
                   <p className="text-muted-foreground mb-4">
-                    During the COVID-19 pandemic, Rokto expanded its services to include
+                    During the COVID-19 pandemic, Rokto Shetu expanded its services to include
                     plasma donation from recovered COVID-19 patients, helping save countless lives.
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">2022-Present: Nationwide Network</h3>
                   <p className="text-muted-foreground mb-4">
-                    Today, Rokto operates across all 64 districts of Bangladesh, with over 10,000
+                    Today, Rokto Shetu operates across all 64 districts of Bangladesh, with over 10,000
                     registered donors and partnerships with major hospitals and blood banks.
                   </p>
                 </div>

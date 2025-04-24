@@ -3,6 +3,7 @@ import { Facebook, Instagram, Twitter, Youtube, Heart, Mail, Phone } from "lucid
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import Image from "next/image"
 
 export function Footer() {
   return (
@@ -11,16 +12,26 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="relative h-8 w-8">
-                {/* Rokto logo with blood drop */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="blood-drop-pulse h-5 w-3 bg-primary rounded-b-full rounded-t-[50%]" />
+              <Link href="/" className="flex items-center gap-2">
+                <div className="relative h-8 w-8">
+                  {/* Rokto Shetu logo with blood drop */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {/* <div className="blood-drop-pulse h-5 w-3 bg-primary rounded-b-full rounded-t-[50%]" /> */}
+                    <Image
+                      src="/logo.svg"
+                      alt="Rokto Shetu Logo"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full" />
+                  </div>
                 </div>
-              </div>
-              <span className="text-xl font-bold text-primary">ROKTO</span>
+                <span className="hidden sm:inline-block text-xl font-bold text-primary">
+                  Rokto Shetu
+                </span>
+              </Link>
             </div>
             <p className="text-sm text-muted-foreground">
-              Rokto is a real-time free platform to help blood searchers connect voluntary blood donors around Bangladesh.
+              Rokto Shetu is a real-time free platform to help blood searchers connect voluntary blood donors around Bangladesh.
             </p>
             <div className="flex space-x-3">
               <Button size="icon" variant="outline" className="rounded-full h-8 w-8">
@@ -129,7 +140,7 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Rokto. All rights reserved.
+            &copy; {new Date().getFullYear()} Rokto Shetu. All rights reserved.
           </p>
           <div className="flex gap-4 text-sm">
             <Link href="/privacy-policy" className="text-muted-foreground hover:text-primary">
