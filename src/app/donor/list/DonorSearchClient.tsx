@@ -8,14 +8,10 @@ import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Label } from "../../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { AREAS as areas, BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
+import { AREAS as area, BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
 import { formatBloodGroup, getBloodGroupKey } from "@/lib/utils";
+import { locationList } from "@/lib/data";
 
-interface Location {
-    address: string;
-    state: string;
-    city: string;
-}
 
 interface Donor {
     id: number;
@@ -35,11 +31,16 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
     // State to track filter inputs
     const [filterInputs, setFilterInputs] = useState({
         bloodGroup: "any",
-        location: "any",
+        city: "any",
+        upazila: "any",
         availability: "any",
     });
-    console.log(filterInputs);
     
+    // Add state for available upazilas
+    const [availableUpazilas, setAvailableUpazilas] = useState<string[]>([]);
+    
+    console.log(filterInputs);
+
     // State to track if we're loading new data
     const [isLoading, setIsLoading] = useState(false);
 
@@ -49,13 +50,36 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
     // Initialize filters from URL on component mount and when URL changes
     useEffect(() => {
         // Always default to "any" if the parameter doesn't exist
-        // const bloodValue = formatBloodGroup(searchParams.get("bloodGroup") || "any");
         const bloodGroup = formatBloodGroup(searchParams.get("bloodGroup") || "any") || "any";
-        const location = searchParams.get("location") || "any";
+        const upazila = searchParams.get("upazila") || "any";
+        const city = searchParams.get("city") || "any";
         const availability = searchParams.get("availability") || "any";
 
-        setFilterInputs({ bloodGroup, location, availability });
+        setFilterInputs({ bloodGroup, upazila, city, availability });
+
+        // Update available upazilas when city changes
+        if (city !== "any") {
+            const cityData = locationList.find(loc => loc.city === city);
+            setAvailableUpazilas(cityData?.upazilas || []);
+        } else {
+            setAvailableUpazilas([]);
+        }
     }, [searchParams]);
+
+    // Update available upazilas when city changes
+    useEffect(() => {
+        if (filterInputs.city !== "any") {
+            const cityData = locationList.find(loc => loc.city === filterInputs.city);
+            setAvailableUpazilas(cityData?.upazilas || []);
+            // Reset upazila selection when city changes
+            if (filterInputs.upazila !== "any" && !cityData?.upazilas.includes(filterInputs.upazila)) {
+                setFilterInputs(prev => ({ ...prev, upazila: "any" }));
+            }
+        } else {
+            setAvailableUpazilas([]);
+            setFilterInputs(prev => ({ ...prev, upazila: "any" }));
+        }
+    }, [filterInputs.city, filterInputs.upazila]);
 
     // Handle filter button click
     const handleApplyFilters = () => {
@@ -67,7 +91,8 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
         // Only keep page parameter if it exists and we're wiping all filters
         const currentPage = searchParams.get("page");
         if (currentPage && filterInputs.bloodGroup === "any" &&
-            filterInputs.location === "any" &&
+            filterInputs.city === "any" &&
+            filterInputs.upazila === "any" &&
             filterInputs.availability === "any") {
             params.set("page", currentPage);
         }
@@ -78,8 +103,11 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
             params.set("bloodGroup", formattedBlood?.toString() || filterInputs.bloodGroup);
         }
 
-        if (filterInputs.location !== "any") {
-            params.set("location", filterInputs.location);
+        if (filterInputs.city !== "any") {
+            params.set("city", filterInputs.city);
+        }
+        if (filterInputs.upazila !== "any") {
+            params.set("upazila", filterInputs.upazila);
         }
 
         if (filterInputs.availability !== "any") {
@@ -88,7 +116,8 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
 
         // Reset to page 1 if any filters are applied
         if (filterInputs.bloodGroup !== "any" ||
-            filterInputs.location !== "any" ||
+            filterInputs.city !== "any" ||
+            filterInputs.upazila !== "any" ||
             filterInputs.availability !== "any") {
             params.set("page", "1");
         }
@@ -142,23 +171,23 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="location">Location</Label>
+                            <Label htmlFor="city">City</Label>
                             <Select
-                                value={filterInputs.location}
+                                value={filterInputs.city}
                                 onValueChange={(value: string) =>
-                                    setFilterInputs(prev => ({ ...prev, location: value }))
+                                    setFilterInputs(prev => ({ ...prev, city: value }))
                                 }
                             >
-                                <SelectTrigger id="location">
-                                    <SelectValue placeholder="Select area/city">
-                                        {filterInputs.location === "any" ? "Any" : filterInputs.location}
+                                <SelectTrigger id="city">
+                                    <SelectValue placeholder="Select city">
+                                        {filterInputs.city === "any" ? "Any" : filterInputs.city}
                                     </SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="any">Any</SelectItem>
-                                    {areas.map(area => (
-                                        <SelectItem key={area} value={area}>
-                                            {area}
+                                    {locationList.map(location => (
+                                        <SelectItem key={location.city} value={location.city}>
+                                            {location.city}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -166,6 +195,31 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                         </div>
 
                         <div className="space-y-2">
+                            <Label htmlFor="upazila">Upazila</Label>
+                            <Select
+                                value={filterInputs.upazila}
+                                onValueChange={(value: string) =>
+                                    setFilterInputs(prev => ({ ...prev, upazila: value }))
+                                }
+                                disabled={filterInputs.city === "any"}
+                            >
+                                <SelectTrigger id="upazila">
+                                    <SelectValue placeholder="Select upazila">
+                                        {filterInputs.upazila === "any" ? "Any" : filterInputs.upazila}
+                                    </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="any">Any</SelectItem>
+                                    {availableUpazilas.map(upazila => (
+                                        <SelectItem key={upazila} value={upazila}>
+                                            {upazila}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* <div className="space-y-2">
                             <Label htmlFor="availability">Availability</Label>
                             <Select
                                 value={filterInputs.availability}
@@ -185,7 +239,7 @@ export default function DonorSearchClient({ donors }: DonorSearchClientProps) {
                                     <SelectItem value="unavailable">Not Available</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </div> */}
 
                         <Button
                             className="w-full"
@@ -248,7 +302,7 @@ function DonorCard({ donor }: DonorCardProps) {
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <MapPin className="h-3.5 w-3.5" />
-                            <span>{donor.location.address}, {donor.location.state}, {donor.location.city}</span>
+                            <span>{donor.location.address}, {donor.location.upazila}, {donor.location.city}</span>
                         </div>
 
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">

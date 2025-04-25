@@ -21,19 +21,24 @@ export default async function DonorSearchPage({ searchParams }: {
 
   for (const [key, value] of Object.entries(queryParams)) {
     if (value !== undefined) {
-      
       switch (key) {
         case "bloodGroup":
           // Convert the blood group to the format used in the database
           const blood = value.replace("-", "_").toUpperCase();
           query.bloodType = BloodType[blood as keyof typeof BloodType] || undefined;
           break;
-        // case "location":
-        //   query.location =
-        //     { 
-        //       // state: { contains: value, mode: "insensitive" } 
-        //     }
-        //   break;
+        case "city":
+          // Using nested filtering for location.city
+          query.location = {
+            city: value
+          };
+          break;
+        case "upazila":
+          // Using nested filtering for location.upazila
+          query.location = {
+            upazila: value
+          };
+          break;
         default:
           break;
       }
@@ -73,11 +78,18 @@ export default async function DonorSearchPage({ searchParams }: {
         })
         : null;
 
+      // Format location data according to the Location interface
+      const defaultLocation = typeof DEFAULT_LOCATION === 'string' 
+        ? { address: DEFAULT_LOCATION, state: '', city: '' }
+        : DEFAULT_LOCATION;
+
+      const location = donor.location || defaultLocation;
+
       return {
         id: donor.id ? Number(donor.id) : index,
         name: `${donor.firstName} ${donor.lastName}`,
         bloodGroup: formatBloodGroup(donor.bloodType.replace("_", "-")),
-        location: donor.location ?? DEFAULT_LOCATION,
+        location,
         lastDonation: formattedDate
           ? `Eligible after ${formattedDate}`
           : "Available now",

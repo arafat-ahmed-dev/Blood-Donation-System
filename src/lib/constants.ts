@@ -24,7 +24,7 @@ export const BLOOD_GROUP_MAP: Record<string, string> = {
   "O-POSITIVE": "O+",
   "O-NEGATIVE": "O-",
 };
-export const ITEM_PER_PAGE = 10; // Number of items per page for pagination
+export const ITEM_PER_PAGE = 12; // Number of items per page for pagination
 // Define a custom Location type
 export type CustomLocation = {
   city: string;

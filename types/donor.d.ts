@@ -1,6 +1,6 @@
 interface Location {
   address: string;
-  state: string;
+  upazila: string;
   city: string;
 }
 

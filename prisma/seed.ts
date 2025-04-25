@@ -1,4 +1,5 @@
 import { PrismaClient, BloodType } from "@prisma/client";
+import { locationList } from "../src/lib/data";
 
 const prisma = new PrismaClient();
 
@@ -20,23 +21,13 @@ const bloodTypes = [
 ];
 
 // City coordinates for location diversity
-const cityCoordinates = [
-  { city: 'Sylhet', state: 'Sylhet', address: 'Bahubol Road #01' },
-  { city: 'Dhaka', state: 'Dhaka', address: 'Gulshan Avenue #02' },
-  { city: 'Chittagong', state: 'Chittagong', address: 'Agrabad Commercial Area #03' },
-  { city: 'Rajshahi', state: 'Rajshahi', address: 'Shaheb Bazar #04' },
-  { city: 'Khulna', state: 'Khulna', address: 'Boyra Main Road #05' },
-  { city: 'Barisal', state: 'Barisal', address: 'Band Road #06' },
-  { city: 'Rangpur', state: 'Rangpur', address: 'Station Road #07' },
-  { city: 'Mymensingh', state: 'Mymensingh', address: 'Ganginarpar Road #08' },
-  { city: 'Comilla', state: 'Comilla', address: 'Kandirpar Road #09' },
-  { city: 'Gazipur', state: 'Dhaka', address: 'Tongi Industrial Area #10' },
-  { city: 'Narayanganj', state: 'Dhaka', address: 'Chashara Road #11' },
-  { city: 'Jessore', state: 'Khulna', address: 'Railway Station Road #12' },
-  { city: 'Cox\'s Bazar', state: 'Chittagong', address: 'Laboni Beach Road #13' },
-  { city: 'Bogura', state: 'Rajshahi', address: 'Satmatha Road #14' },
-  { city: 'Pabna', state: 'Rajshahi', address: 'Hemayetpur Road #15' }
-];
+const cityCoordinates = locationList.flatMap((cityData) => 
+  cityData.upazilas.map((upazila, index) => ({
+    city: cityData.city,
+    upazila: upazila,
+    address: `${upazila} Road #${index + 1}`,
+  }))
+);
 
 async function main() {
   console.log(`Start seeding ...`);
@@ -50,7 +41,7 @@ async function main() {
   // ======== DONORS ========
   // Create 50 donors
   const donors = await Promise.all(
-    Array.from({ length: 50 }, (_, i) => {
+    Array.from({ length: 100 }, (_, i) => {
       const firstName = ['John', 'Sarah', 'Michael', 'Emily', 'David', 'Lisa', 'James', 'Jennifer', 'Robert', 'Jessica'][i % 10];
       const lastName = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor'][Math.floor(i / 5) % 10];
       const gender = i % 3 === 0 ? 'Male' : i % 3 === 1 ? 'Female' : 'Other';
@@ -77,10 +68,12 @@ async function main() {
           gender,
           role: 'donor',
           bloodType, // Use enum value
-          location: {       
+          location: {
+            create: {
               city: location.city,
-              state: location.state,
+              upazila: location.upazila,
               address: location.address,
+            }
           },
           eligibility,
           nextEligibleDate,
@@ -92,7 +85,7 @@ async function main() {
   // ======== RECIPIENTS ========
   // Create 15 hospitals/blood banks
   const medicalFacilities = await Promise.all(
-    Array.from({ length: 15 }, (_, i) => {
+    Array.from({ length: 30 }, (_, i) => {
       const isHospital = i < 10; // First 10 are hospitals, rest are blood banks
       const firstName = isHospital
         ? ['Mercy', 'Central', 'Memorial', 'General', 'University', 'Regional', 'Community', 'Saint', 'Valley', 'Metro'][i % 10]
@@ -117,9 +110,11 @@ async function main() {
           role: 'recipient',
           bloodType, // Use enum value
           location: {
+            create: {
               city: location.city,
-              state: location.state,
+              upazila: location.upazila,
               address: location.address,
+            }
           },
           eligibility: true,
           nextEligibleDate: null,
@@ -130,7 +125,7 @@ async function main() {
 
   // Create 20 individual patients
   const patients = await Promise.all(
-    Array.from({ length: 20 }, (_, i) => {
+    Array.from({ length: 30 }, (_, i) => {
       const firstName = ['Robert', 'Patricia', 'Thomas', 'Barbara', 'Christopher', 'Elizabeth', 'Daniel', 'Jennifer', 'Paul', 'Maria'][i % 10];
       const lastName = ['Anderson', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark', 'Rodriguez', 'Lewis', 'Lee', 'Walker'][i % 10];
       const gender = i % 3 === 0 ? 'Male' : i % 3 === 1 ? 'Female' : 'Other';
@@ -149,9 +144,11 @@ async function main() {
           role: 'recipient',
           bloodType, // Use BloodType enum
           location: {
+            create: {
               city: location.city,
-              state: location.state,
+              upazila: location.upazila,
               address: location.address,
+            }
           },
           eligibility: true,
           nextEligibleDate: null,
