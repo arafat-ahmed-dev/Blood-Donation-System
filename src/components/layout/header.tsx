@@ -75,7 +75,7 @@ export function Header() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/donor/register">
+                  <Link href="/become-blood-donor">
                     Become a Donor
                   </Link>
                 </NavigationMenuLink>
