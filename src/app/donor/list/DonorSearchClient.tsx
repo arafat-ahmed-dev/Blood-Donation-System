@@ -8,7 +8,7 @@ import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Label } from "../../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
-import { AREAS as area, BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
+import { BLOOD_GROUPS as bloodGroups } from "@/lib/constants";
 import { formatBloodGroup, getBloodGroupKey } from "@/lib/utils";
 import { locationList } from "@/lib/data";
 
@@ -17,7 +17,7 @@ interface Donor {
     id: number;
     name: string;
     bloodGroup: string;
-    location: Location;
+    location: DonorLocation;
     lastDonation: string;
     donationCount: number;
     available: boolean;

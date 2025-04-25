@@ -28,12 +28,12 @@ export const ITEM_PER_PAGE = 12; // Number of items per page for pagination
 // Define a custom Location type
 export type CustomLocation = {
   city: string;
-  state: string;
+  upazila: string;
   address: string;
 };
 
 export const DEFAULT_LOCATION: CustomLocation = {
   city: "Unknown",
-  state: "Unknown",
+  upazila: "Unknown",
   address: "Unknown",
 };

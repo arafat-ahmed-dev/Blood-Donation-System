@@ -53,7 +53,13 @@ export default async function DonorSearchPage({ searchParams }: {
         firstName: true,
         lastName: true,
         bloodType: true,
-        location: true,
+        location: {
+          select: {
+            address: true,
+            upazila: true,
+            city: true,
+          }
+        },
         eligibility: true,
         nextEligibleDate: true,
         donations: {
@@ -80,7 +86,7 @@ export default async function DonorSearchPage({ searchParams }: {
 
       // Format location data according to the Location interface
       const defaultLocation = typeof DEFAULT_LOCATION === 'string' 
-        ? { address: DEFAULT_LOCATION, state: '', city: '' }
+        ? { address: DEFAULT_LOCATION, upazila: '', city: '' }
         : DEFAULT_LOCATION;
 
       const location = donor.location || defaultLocation;
