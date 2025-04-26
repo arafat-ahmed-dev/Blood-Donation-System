@@ -267,7 +267,7 @@ export default function RequestBloodPage() {
             </div>
 
             <div>
-              <Card className="sticky top-8">
+              <Card className="sticky top-3">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Info className="h-5 w-5 text-primary" />

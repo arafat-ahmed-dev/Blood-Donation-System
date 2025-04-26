@@ -1,182 +1,72 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Menu, X } from "lucide-react"
-import { motion } from "framer-motion"
-
-import { Button } from "@/components/ui/button"
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu"
+import Logo from "@/components/header/Logo"
+import DesktopNav from "@/components/header/DesktopNav"
+import MobileNav from "@/components/header/MobileNav"
+import UserMenu from "@/components/header/UserMenu"
+import AuthButtons from "@/components/header/AuthButtons"
+import SearchPanel from "@/components/layout/SearchPanel"
+import LocationSelector from "@/components/header/LocationSelector"
+import MobileMenuToggle from "@/components/header/MobileMenuToggle"
+import { useScrollPosition } from "@/hooks/useScrollPosition"
+import { useAuth } from "@/hooks/useAuth"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const { isScrolled } = useScrollPosition()
+  // const { isAuthenticated, user, notificationCount } = useAuth()
+  const isAuthenticated = true;
+  const notificationCount = 10;
+  const user = {
+    "name": "Arafat Ahmed",
+    "firstName": "Arafat",
+    "avatarUrl": "string",
+    "initials": "string",
+    "bloodType": "A+",
+  }
+
+  // Don't render authenticated UI if user is null
+  const showAuthenticatedUI = isAuthenticated && user !== null
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={`sticky top-0 z-50 w-full backdrop-blur transition-all duration-300 ${isScrolled ? "border-b shadow-sm bg-background/95 supports-[backdrop-filter]:bg-background/60" : "bg-background"
+      }`}>
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-8 w-8">
-              {/* Rokto Shetu logo with blood drop */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* <div className="blood-drop-pulse h-5 w-3 bg-primary rounded-b-full rounded-t-[50%]" /> */}
-                <Image
-                  src="/logo.svg"
-                  alt="Rokto Shetu Logo"
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 rounded-full" />
-              </div>
-            </div>
-            <span className="hidden sm:inline-block text-xl font-bold text-primary">
-              Rokto Shetu
-            </span>
-          </Link>
+          <Logo />
+          <LocationSelector />
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/">
-                    Home
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Find Blood</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid gap-3 p-4 w-[200px]">
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/request">
-                          <div className="text-sm font-medium leading-none">Request Blood</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Find blood donors near you
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink asChild>
-                        <Link href="/donor/list">
-                          <div className="text-sm font-medium leading-none">Search Donors</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Search by location and blood type
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/become-blood-donor">
-                    Become a Donor
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/about" className="pl-3">
-                    About
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        </nav>
+        <DesktopNav />
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild className="hidden md:flex">
-            <Link href="/auth/login">Login</Link>
-          </Button>
-          <Button size="sm" className="hidden md:flex">
-            <Link href="/auth/register">Register</Link>
-          </Button>
+          <SearchPanel isOpen={searchOpen} onOpenChange={setSearchOpen} />
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {showAuthenticatedUI ? (
+            <UserMenu
+              user={user ?? {}}
+              notificationCount={notificationCount}
+            />
+          ) : (
+            <AuthButtons className="hidden md:flex" />
+          )}
+
+          <MobileMenuToggle
+            isOpen={mobileMenuOpen}
+            onToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+          />
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="md:hidden p-4 pt-0 bg-background border-b"
-        >
-          <nav className="grid gap-2">
-            <Link
-              href="/"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/request"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Request Blood
-            </Link>
-            <Link
-              href="/donor/search"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Search Donors
-            </Link>
-            <Link
-              href="/donor/register"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Become a Donor
-            </Link>
-            <Link
-              href="/about"
-              className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <div className="flex flex-col sm:flex-row gap-2 mt-2 pt-2 border-t">
-              <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
-                <Link
-                  href="/auth/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              </Button>
-              <Button size="sm" className="w-full sm:w-auto" asChild>
-                <Link
-                  href="/auth/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Register
-                </Link>
-              </Button>
-            </div>
-          </nav>
-        </motion.div>
-      )}
+      <MobileNav
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        isAuthenticated={showAuthenticatedUI}
+        user={user ?? {}}
+        notificationCount={notificationCount}
+      />
     </header>
   )
 }
