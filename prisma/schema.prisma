@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Donor {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  email             String    @unique
+  phone             String?
+  address           String
+  city              String
+  upazila           String
+  zip               String?
+  bloodType         String
+  dateOfBirth       DateTime
+  age               Int
+  gender            String
+  lastDonationDate  DateTime?
+  nextEligibleDate  DateTime?
+  registrationDate  DateTime  @default(now())
+  totalDonations    Int       @default(0)
+  donorLevel        String    @default("Bronze")
+  isAdmin           Boolean   @default(false)
+  image             String?
+  
+  // Relations
+  donations         Donation[]
+  appointments      Appointment[]
+  healthRecords     HealthRecord[]
+  notifications     Notification[]
+  supportTickets    SupportTicket[]
+  supportMessages   SupportMessage[]
+  
+  @@map("donors")
+}
+
+model Donation {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  donationId    String    @unique // Human-readable ID like DON-1001
+  donorId       String    @db.ObjectId
+  donationDate  DateTime
+  location      String
+  bloodType     String
+  units         Int       @default(1)
+  status        String    // Scheduled, Completed, Cancelled, Processing, Deferred
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  donor         Donor     @relation(fields: [donorId], references: [id])
+  
+  @@map("donations")
+}
+
+model Appointment {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  appointmentId String    @unique // Human-readable ID like APT-2045
+  donorId       String    @db.ObjectId
+  date          DateTime
+  time          String
+  location      String
+  status        String    // Confirmed, Pending, Cancelled, Completed
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  donor         Donor     @relation(fields: [donorId], references: [id])
+  
+  @@map("appointments")
+}
+
+model BloodInventory {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  bloodType     String    @unique
+  units         Int
+  status        String    // Adequate, Low, Critical
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  usageRecords  BloodUsage[]
+  
+  @@map("blood_inventory")
+}
+
+model BloodUsage {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  inventoryId     String    @db.ObjectId
+  usageDate       DateTime
+  units           Int
+  purpose         String    // Surgery, Trauma, Cancer Treatment, etc.
+  hospitalId      String?   @db.ObjectId
+  requestId       String?   @db.ObjectId
+  
+  // Relations
+  bloodInventory  BloodInventory @relation(fields: [inventoryId], references: [id])
+  hospital        Hospital?      @relation(fields: [hospitalId], references: [id])
+  
+  @@map("blood_usage")
+}
+
+model BloodRequest {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  requestId       String    @unique // Human-readable ID like REQ-1239
+  hospitalId      String?   @db.ObjectId
+  bloodType       String
+  units           Int
+  urgency         String    // Critical, High, Medium, Low
+  requestedDate   DateTime
+  status          String    // Pending, Processing, Fulfilled, Cancelled
+  contactName     String?
+  contactPhone    String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  hospital        Hospital?  @relation(fields: [hospitalId], references: [id])
+  
+  @@map("blood_requests")
+}
+
+model Hospital {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  code          String?   @unique
+  type          String    // Government, Private, Specialized, Community
+  address       String
+  city          String
+  upazila       String?
+  zip           String?
+  phone         String?
+  email         String?
+  contactPerson String?
+  verified      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  bloodRequests BloodRequest[]
+  bloodUsages   BloodUsage[]
+  
+  @@map("hospitals")
+}
+
+model Notification {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  title         String
+  message       String
+  date          DateTime  @default(now())
+  read          Boolean   @default(false)
+  type          String    // Appointment, Eligibility, Urgent, Achievement, System
+  
+  // Relations
+  user          Donor     @relation(fields: [userId], references: [id])
+  
+  @@map("notifications")
+}
+
+model HealthRecord {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  donorId       String    @db.ObjectId
+  date          DateTime
+  hemoglobin    String
+  bloodPressure String
+  pulse         String
+  weight        String
+  notes         String?
+  
+  // Relations
+  donor         Donor     @relation(fields: [donorId], references: [id])
+  
+  @@map("health_records")
+}
+
+model DonationCenter {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  address       String
+  city          String
+  upazila       String
+  email         String?
+  zip           String
+  phone         String
+  hours         String
+  waitTime      String
+  operatingHours String
+  distance      String?
+  appointments  Boolean   @default(true)
+  walkIns       Boolean   @default(true)
+  status        String    // Open Now, Closed
+  
+  @@map("donation_centers")
+}
+
+model SupportTicket {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  subject       String
+  message       String
+  category      String    // General, Technical, Donation, Appointment, Account, Other
+  priority      String    // Low, Medium, High
+  status        String    // Open, In Progress, Resolved, Closed
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          Donor     @relation(fields: [userId], references: [id])
+  messages      SupportMessage[]
+  
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  ticketId      String    @db.ObjectId
+  userId        String    @db.ObjectId
+  message       String
+  isStaff       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  ticket        SupportTicket @relation(fields: [ticketId], references: [id])
+  user          Donor     @relation(fields: [userId], references: [id])
+  
+  @@map("support_messages")
+}
