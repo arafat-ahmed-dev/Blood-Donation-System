@@ -75,7 +75,7 @@ export function AuthForm() {
       if (result.success) {
         toast({
           title: "Login successful",
-          description: "Welcome back to LifeFlow!",
+          description: "Please check your email for verification instructions.",
         })
         router.push(redirectPath)
       } else {
@@ -104,8 +104,17 @@ export function AuthForm() {
       if (result.success) {
         toast({
           title: "Registration successful",
-          description: "Your account has been created. Please log in.",
+          description: "Please check your email for verification instructions.",
         })
+        if (values.email && result.tempToken) {
+          router.push(`/verify?email=${encodeURIComponent(values.email)}&token=${encodeURIComponent(result.tempToken)}&redirect=${encodeURIComponent(redirectPath)}`)
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Missing email or token. Please try again.",
+          })
+        }
         setActiveTab("login")
         loginForm.setValue("email", values.email)
       } else {

@@ -81,3 +81,25 @@ export function getInitials(name: string): string {
     .join("")
     .toUpperCase()
 }
+
+export function generateTempToken(number : number): string {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  let token = ""
+  for (let i = 0; i < number; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length)
+    token += characters[randomIndex]
+  }
+  return token
+}
+export function formatPhoneNumber(phoneNumber: string): string {
+  // Remove all non-digit characters
+  const cleaned = phoneNumber.replace(/\D/g, "")
+
+  // Format the number as (XXX) XXX-XXXX
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`
+  }
+
+  return phoneNumber // Return the original if it doesn't match the format
+}

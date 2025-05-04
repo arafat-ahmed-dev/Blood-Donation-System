@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { SessionProvider } from "next-auth/react"
+import { generateTempToken } from "@/lib/utils"
 
 type User = {
   id: string
@@ -23,7 +24,7 @@ type AuthContextType = {
   isAuthenticated: boolean
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
-  register: (userData: any) => Promise<{ success: boolean; message?: string }>
+  register: (userData: any) => Promise<{ success: boolean; message?: string  ; tempToken?: string }>
   logout: () => Promise<void>
 }
 
@@ -95,10 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       const data = await res.json()
-
+      const tempToken = generateTempToken(data.number)
       return {
         success: data.success,
         message: data.message,
+        tempToken: tempToken ?? undefined,
       }
     } catch (error) {
       console.error("Registration error:", error)
