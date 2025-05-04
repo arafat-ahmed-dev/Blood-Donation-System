@@ -1,16 +1,19 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Bell, User } from "lucide-react"
+import { Search, User, ChevronRight, LogOut } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/hooks/useAuth"
 import AuthButtons from "./AuthButtons"
+
+import { useState } from "react"
+import { Separator } from "../ui/separator"
 
 // Animation variants
 const menuVariants = {
@@ -36,19 +39,20 @@ interface MobileNavProps {
   isAuthenticated: boolean
   user: {
     name?: string
-    avatarUrl?: string
+    image?: string
     initials?: string
     bloodType?: string
+    isAdmin?: boolean
   }
-  notificationCount: number
 }
 
-export default function MobileNav({ isOpen, onClose, isAuthenticated, user, notificationCount }: MobileNavProps) {
+export default function MobileNav({ isOpen, onClose, isAuthenticated, user }: MobileNavProps) {
   const { logout } = useAuth()
   const initials = user?.name
     ?.split(" ")
     .map((n) => n[0])
     .join("")
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -78,16 +82,17 @@ export default function MobileNav({ isOpen, onClose, isAuthenticated, user, noti
             <MobileNavSection title="Resources">
               <MobileNavItem href="/become-blood-donor" label="Become a Donor" onClose={onClose} />
               <MobileNavItem href="/blog" label="Blog & News" onClose={onClose} />
-              <MobileNavItem href="/education" label="Blood Education" onClose={onClose} />
+              <MobileNavItem href="/donation-centers" label="Donation Centers" onClose={onClose} />
+              <MobileNavItem href="/blood-education" label="Blood Education" onClose={onClose} />
             </MobileNavSection>
 
             <MobileNavItem href="/about" label="About" onClose={onClose} />
 
-            {isAuthenticated ? (
+            {!isAuthenticated ? (
               <motion.div variants={menuItemVariants} className="mt-3 pt-3 border-t">
                 <div className="flex items-center gap-3 px-3 py-2">
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src={user?.avatarUrl || "/placeholder.svg"} alt={user?.name} />
+                    <AvatarImage src={user?.image || "/placeholder.svg"} alt={user?.name} />
                     <AvatarFallback>{user?.initials || initials}</AvatarFallback>
                   </Avatar>
                   <div>
@@ -101,13 +106,17 @@ export default function MobileNav({ isOpen, onClose, isAuthenticated, user, noti
                   icon={<User className="h-4 w-4" />}
                   onClose={onClose}
                 />
-                <MobileNavItem
-                  href="/notifications"
-                  label="Notifications"
-                  icon={<Bell className="h-4 w-4" />}
-                  badge={notificationCount > 0 ? notificationCount : undefined}
-                  onClose={onClose}
-                />
+                {
+                  user?.isAdmin && (
+                    <MobileNavItem
+                      href="/admin/dashboard"
+                      label="Admin Panel"
+                      icon={<User className="h-4 w-4" />}
+                      onClose={onClose}
+                    />
+                  )
+                }
+                <Separator className="my-2" />
                 <Button
                   variant="ghost"
                   className="w-full justify-start px-3 py-2 rounded-md hover:bg-accent text-sm text-destructive"
@@ -116,6 +125,7 @@ export default function MobileNav({ isOpen, onClose, isAuthenticated, user, noti
                     onClose()
                   }}
                 >
+                  <LogOut className=" h-4 w-4" />
                   Logout
                 </Button>
               </motion.div>
@@ -142,14 +152,22 @@ interface MobileNavItemProps {
 function MobileNavItem({ href, label, icon, badge, onClose }: MobileNavItemProps) {
   return (
     <motion.div variants={menuItemVariants}>
-      <Link href={href} className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent" onClick={onClose}>
-        {icon && icon}
-        {label}
-        {badge && (
-          <Badge variant="secondary" className="ml-auto">
-            {badge}
-          </Badge>
-        )}
+      <Link
+        href={href}
+        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-accent"
+        onClick={onClose}
+      >
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            {icon && icon}
+            <span>{label}</span>
+            {badge && (
+              <Badge variant="secondary" className="ml-auto">
+                {badge}
+              </Badge>
+            )}
+          </div>
+        </div>
       </Link>
     </motion.div>
   )
@@ -161,11 +179,25 @@ interface MobileNavSectionProps {
 }
 
 function MobileNavSection({ title, children }: MobileNavSectionProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
   return (
     <motion.div variants={menuItemVariants}>
       <div className="flex flex-col px-2 py-1">
-        <div className="px-1 py-1 font-medium text-sm">{title}</div>
-        {children}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between px-1 py-1 font-medium text-sm w-full text-left"
+        >
+          {title}
+          <ChevronRight
+            className={`h-4 w-4 transition-transform ${isOpen ? 'transform rotate-90' : ''}`}
+          />
+        </button>
+        {isOpen && (
+          <div className="space-y-1 pl-2">
+            {children}
+          </div>
+        )}
       </div>
     </motion.div>
   )

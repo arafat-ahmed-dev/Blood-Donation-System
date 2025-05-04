@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "./useAuth"
+import { User } from "@/lib/store"
 
 export function useProfile() {
   const { user: sessionUser, isAuthenticated } = useAuth()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User>()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

@@ -18,35 +18,56 @@ import { useAuth } from "@/hooks/useAuth"
 import { formatBloodGroup } from "@/lib/utils"
 
 export default function ProfileClient() {
+  const user = {
+    id: "usr_001",
+    name: "Rahim Ahmed",
+    email: "rahim.ahmed@example.com",
+    phone: "01712345678",
+    address: "123 Lake View Road",
+    city: "Dhaka",
+    upazila: "Gulshan",
+    zip: "1212",
+    bloodType: "A+",
+    dateOfBirth: "1990-05-15",
+    lastDonation: "2025-03-01",
+    nextEligibleDate: "2025-04-4",
+    donorLevel: "Gold",
+    totalDonations: 12,
+    isAdmin: false,
+    image: "https://randomuser.me/api/portraits/men/1.jpg"
+  };
   const [activeTab, setActiveTab] = useState("overview")
-  const { user, isLoading: profileLoading } = useProfile()
+  // const { user, isLoading: profileLoading } = useProfile()
   const { donations, isLoading: donationsLoading } = useDonations(user?.id)
   const { appointments, isLoading: appointmentsLoading } = useAppointments(user?.id)
-  const { isAuthenticated, logout } = useAuth()
+  // const { isAuthenticated, logout } = useAuth()
   const router = useRouter()
+  const isAuthenticated = true // Replace with actual authentication check
+
 
   if (!isAuthenticated) {
     router.push("/auth/login?redirect=/profile")
     return null
   }
+  // if (profileLoading || !user) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[60vh]">
+  //       <div className="text-center">
+  //         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+  //         <p className="text-muted-foreground">Loading profile...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
-  if (profileLoading || !user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    )
-  }
-
-  const fullName = `${user.firstName} ${user.lastName}`
-  const initials = `${user.firstName[0]}${user.lastName[0]}`
-  const bloodGroup = formatBloodGroup(user.bloodType)
+  const fullName = `${user?.name}`;
+  const initials = user?.name.split(' ').map(n => n[0]).join('');
+  const bloodGroup = user?.bloodType
   const donationCount = donations?.length || 0
   const nextAppointment = appointments?.find((a: any) => a.status === "Confirmed")
-
+  const eligibilityStatus =
+    !user?.nextEligibleDate ? "Available" :  // If no previous donation, they're available
+      new Date(user.nextEligibleDate) > new Date() ? "Not Available" : "Available";
   return (
     <div className="flex flex-col md:flex-row gap-8">
       {/* Sidebar */}
@@ -56,8 +77,8 @@ export default function ProfileClient() {
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center">
                 <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4">
-                  {user.image ? (
-                    <Image src={user.image || "/placeholder.svg"} alt={fullName} fill className="object-cover" />
+                  {user?.image ? (
+                    <Image src={user?.image || "/placeholder.svg"} alt={fullName} fill className="object-cover" />
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="text-2xl font-bold text-primary">{initials}</span>
@@ -65,13 +86,13 @@ export default function ProfileClient() {
                   )}
                 </div>
                 <h2 className="text-xl font-bold">{fullName}</h2>
-                <p className="text-muted-foreground">Donor ID: {user.id.substring(0, 8)}</p>
+                <p className="text-muted-foreground">Donor ID: {user?.id.substring(0, 8)}</p>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <Badge className="bg-primary">{bloodGroup}</Badge>
-                  <Badge variant="outline">{user.eligibility ? "Available" : "Not Available"}</Badge>
+                  <Badge variant="outline">{eligibilityStatus !== "Not Available" ? "Available" : "Not Available"}</Badge>
                 </div>
                 <div className="w-full mt-4">
-                  <Button className="w-full" disabled={!user.eligibility}>
+                  <Button className="w-full" disabled={eligibilityStatus === "Not Available"}>
                     Schedule Donation
                   </Button>
                 </div>
@@ -97,15 +118,15 @@ export default function ProfileClient() {
                   <div className="flex justify-between text-sm mb-1">
                     <span>Last Donation</span>
                     <span className="font-medium">
-                      {user.lastDonationDate
-                        ? new Date(user.lastDonationDate).toLocaleDateString()
+                      {user?.lastDonation
+                        ? new Date(user?.lastDonation).toLocaleDateString()
                         : "No donations yet"}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Next Eligible Date</span>
                     <span className="font-medium text-green-600">
-                      {user.nextEligibleDate ? new Date(user.nextEligibleDate).toLocaleDateString() : "Available now"}
+                      {user?.nextEligibleDate ? new Date(user.nextEligibleDate).toLocaleDateString() : "Available now"}
                     </span>
                   </div>
                 </div>
@@ -148,36 +169,32 @@ export default function ProfileClient() {
             <CardContent className="pb-2">
               <nav className="space-y-1">
                 <button
-                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${
-                    activeTab === "overview" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${activeTab === "overview" ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
                   onClick={() => setActiveTab("overview")}
                 >
                   <User className="h-4 w-4" />
                   <span>Overview</span>
                 </button>
                 <button
-                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${
-                    activeTab === "donations" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${activeTab === "donations" ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
                   onClick={() => setActiveTab("donations")}
                 >
                   <History className="h-4 w-4" />
                   <span>Donation History</span>
                 </button>
                 <button
-                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${
-                    activeTab === "appointments" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${activeTab === "appointments" ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
                   onClick={() => setActiveTab("appointments")}
                 >
                   <Calendar className="h-4 w-4" />
                   <span>Appointments</span>
                 </button>
                 <button
-                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${
-                    activeTab === "settings" ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  }`}
+                  className={`flex items-center gap-2 p-2 rounded-md text-sm w-full text-left ${activeTab === "settings" ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    }`}
                   onClick={() => setActiveTab("settings")}
                 >
                   <Settings className="h-4 w-4" />
@@ -213,7 +230,7 @@ export default function ProfileClient() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{user.email}</p>
+                    <p className="font-medium">{user?.email}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Blood Type</p>
@@ -221,14 +238,14 @@ export default function ProfileClient() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">{user.phone || "Not provided"}</p>
+                    <p className="font-medium">{user?.phone || "Not provided"}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Address</p>
                     <p className="font-medium">
-                      {user.location?.address ? (
+                      {user?.city ? (
                         <>
-                          {user.location.address}, {user.location.upazila}, {user.location.city}
+                          {user?.address}, {user?.upazila}, {user?.city}
                         </>
                       ) : (
                         "Not provided"
@@ -237,8 +254,8 @@ export default function ProfileClient() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Eligibility Status</p>
-                    <p className={`font-medium ${user.eligibility ? "text-green-600" : "text-red-600"}`}>
-                      {user.eligibility ? "Available to donate" : "Not eligible until next eligible date"}
+                    <p className={`font-medium ${eligibilityStatus === "Available" ? "text-green-600" : "text-red-600"}`}>
+                      {eligibilityStatus === "Available" ? "Available to donate" : "Not eligible until next eligible date"}
                     </p>
                   </div>
                 </div>
@@ -353,7 +370,7 @@ export default function ProfileClient() {
                   </div>
                   <div className="p-4 bg-primary/5 rounded-lg">
                     <MapPin className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <p className="text-2xl font-bold">{user.location?.city || "N/A"}</p>
+                    <p className="text-2xl font-bold">{user?.city || "N/A"}</p>
                     <p className="text-sm text-muted-foreground">Community Served</p>
                   </div>
                 </div>
@@ -519,18 +536,6 @@ function ProfileSettings({ user }: { user: any }) {
     setError(null)
     setSuccess(null)
 
-    // Validate passwords if changing
-    if (formData.newPassword) {
-      if (formData.newPassword !== formData.confirmPassword) {
-        setError("New passwords do not match")
-        return
-      }
-      if (!formData.currentPassword) {
-        setError("Current password is required to set a new password")
-        return
-      }
-    }
-
     const result = await updateProfile({
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -544,13 +549,6 @@ function ProfileSettings({ user }: { user: any }) {
 
     if (result) {
       setSuccess("Profile updated successfully")
-      // Reset password fields
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }))
     }
   }
 
@@ -672,52 +670,7 @@ function ProfileSettings({ user }: { user: any }) {
             </div>
           </div>
 
-          <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-lg font-medium">Change Password</h3>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="currentPassword" className="text-sm font-medium">
-                  Current Password
-                </label>
-                <input
-                  id="currentPassword"
-                  name="currentPassword"
-                  type="password"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="newPassword" className="text-sm font-medium">
-                    New Password
-                  </label>
-                  <input
-                    id="newPassword"
-                    name="newPassword"
-                    type="password"
-                    value={formData.newPassword}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="confirmPassword" className="text-sm font-medium">
-                    Confirm New Password
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           <div className="flex justify-between pt-4">
             <Button type="submit" disabled={isLoading}>

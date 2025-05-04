@@ -12,20 +12,20 @@ import {
 
 export default function DesktopNav() {
   return (
-    <nav className="hidden md:flex" aria-label="Main navigation">
+    <nav className="hidden md:flex items-center" aria-label="Main navigation">
       <NavigationMenu>
-        <NavigationMenuList>
+        <NavigationMenuList className="space-x-0.5 md:space-x-1 lg:space-x-2">
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link href="/" className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors">
+              <Link href="/" className="text-[13px] md:text-sm font-medium transition-colors hover:text-primary px-1.5 md:px-2">
                 Home
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-sm font-medium">Find Blood</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="text-[13px] md:text-sm font-medium px-1.5 md:px-2">Find Blood</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-3 p-6 w-[400px] md:grid-cols-2" role="menu">
+              <ul className="grid gap-2 p-4 md:p-6 w-[300px] md:w-[400px] md:grid-cols-2" role="menu">
                 <li role="menuitem">
                   <NavigationMenuLink asChild>
                     <Link
@@ -69,9 +69,9 @@ export default function DesktopNav() {
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-sm font-medium">Resources</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="text-[13px] md:text-sm font-medium px-1.5 md:px-2">Resources</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-3 p-6 w-[400px] md:w-[500px] md:grid-cols-2" role="menu">
+              <ul className="grid gap-2 p-4 md:p-6 w-[300px] md:w-[500px] md:grid-cols-2" role="menu">
                 <li role="menuitem">
                   <NavigationMenuLink asChild>
                     <Link
@@ -114,7 +114,7 @@ export default function DesktopNav() {
                 <li role="menuitem">
                   <NavigationMenuLink asChild>
                     <Link
-                      href="/education"
+                      href="/blood-education"
                       className="block select-none space-y-1 rounded-md p-3 hover:bg-accent transition-colors"
                     >
                       <div className="text-sm font-medium leading-none">Blood Education</div>
@@ -129,10 +129,7 @@ export default function DesktopNav() {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link
-                href="/about"
-                className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent transition-colors"
-              >
+              <Link href="/about" className="text-[13px] md:text-sm font-medium transition-colors hover:text-primary px-1.5 md:px-2">
                 About
               </Link>
             </NavigationMenuLink>

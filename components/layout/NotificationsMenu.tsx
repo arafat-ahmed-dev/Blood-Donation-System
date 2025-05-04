@@ -5,39 +5,43 @@ import { Bell } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
 
 interface NotificationsMenuProps {
   notificationCount: number
+  className?: string
 }
 
-export function NotificationsMenu({ notificationCount }: NotificationsMenuProps) {
+export function NotificationsMenu({ notificationCount, className }: NotificationsMenuProps) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative hidden md:flex">
-          <Bell className="h-5 w-5" />
-          {notificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-[10px] font-medium text-primary-foreground">{notificationCount}</span>
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
-        <div className="flex items-center justify-between p-2 border-b">
-          <p className="font-medium">Notifications</p>
-          <Button variant="ghost" size="sm">
-            Mark all as read
+    <div className={cn("relative", className)}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="relative flex ">
+            <Bell className="h-5 w-5" />
+            {notificationCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-[10px] font-medium text-primary-foreground">{notificationCount}</span>
+              </span>
+            )}
           </Button>
-        </div>
-        <NotificationsList />
-        <div className="p-2 border-t">
-          <Button variant="ghost" size="sm" className="w-full text-center" asChild>
-            <Link href="/notifications">View all notifications</Link>
-          </Button>
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-80">
+          <div className="flex items-center justify-between p-2 border-b">
+            <p className="font-medium">Notifications</p>
+            <Button variant="ghost" size="sm">
+              Mark all as read
+            </Button>
+          </div>
+          <NotificationsList />
+          <div className="p-2 border-t">
+            <Button variant="ghost" size="sm" className="w-full text-center" asChild>
+              <Link href="/notifications">View all notifications</Link>
+            </Button>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }
 
