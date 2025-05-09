@@ -13,16 +13,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth/auth-provider"
-
+import axios from "axios"
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 })
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   phone: z.string().min(10, { message: "Please enter a valid phone number" }),
   address: z.string().min(5, { message: "Please enter your address" }),
   city: z.string().min(2, { message: "Please enter your city" }),
@@ -38,7 +36,7 @@ export function AuthForm() {
   const [activeTab, setActiveTab] = useState("login")
   const router = useRouter()
   const { toast } = useToast()
-  const { login, register } = useAuth()
+  const { register } = useAuth()
   const searchParams = useSearchParams()
   const redirectPath = searchParams.get("redirect") || "/profile"
 
@@ -46,7 +44,7 @@ export function AuthForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
-      password: "",
+
     },
   })
 
@@ -55,7 +53,6 @@ export function AuthForm() {
     defaultValues: {
       name: "",
       email: "",
-      password: "",
       phone: "",
       address: "",
       city: "",
@@ -64,25 +61,30 @@ export function AuthForm() {
       bloodType: "",
       dateOfBirth: "",
       gender: "",
+
     },
   })
 
   async function onLoginSubmit(values: z.infer<typeof loginSchema>) {
     setIsLoading(true)
     try {
-      const result = await login(values.email, values.password)
-
-      if (result.success) {
+      const generateOTP = await axios.post("/api/auth/generateOTP", {
+        email: values.email,
+      })
+      console.log(generateOTP);
+      
+      if (generateOTP.status === 200) {
         toast({
           title: "Login successful",
           description: "Please check your email for verification instructions.",
         })
-        router.push(redirectPath)
+        const otpData = await generateOTP.data;
+        router.push(`/verify?email=${encodeURIComponent(values.email)}&token=${encodeURIComponent(otpData?.tempToken)}&redirect=${encodeURIComponent(redirectPath)}`)
       } else {
         toast({
           variant: "destructive",
           title: "Login failed",
-          description: result.message,
+          description: generateOTP.statusText,
         })
       }
     } catch (error) {
@@ -163,19 +165,7 @@ export function AuthForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter your password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
               </CardContent>
               <CardFooter>
                 <Button type="submit" className="w-full bg-red-600 hover:bg-red-700" disabled={isLoading}>
@@ -216,19 +206,6 @@ export function AuthForm() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter your email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={registerForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Create a password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -15,7 +15,7 @@ export function useProfile() {
 
     setIsLoading(true)
     setError(null)
-
+    
     try {
       const response = await fetch("/api/user")
       const data = await response.json()

@@ -1,77 +1,38 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import crypto from "crypto";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import jwt from "jsonwebtoken";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
-
-export function formatBloodGroup(bloodType: string | null): string {
-  if (!bloodType) return ""
-
-  // Handle database format (A_POSITIVE, B_NEGATIVE, etc.)
-  if (bloodType.includes("_")) {
-    const parts = bloodType.split("_")
-    if (parts.length === 2) {
-      const group = parts[0]
-      const rh = parts[1] === "POSITIVE" ? "+" : "-"
-      return `${group}${rh}`
-    }
-  }
-
-  // Handle URL format (A-POSITIVE, B-NEGATIVE, etc.)
-  if (bloodType.includes("-")) {
-    const parts = bloodType.split("-")
-    if (parts.length === 2) {
-      const group = parts[0]
-      const rh = parts[1] === "POSITIVE" ? "+" : "-"
-      return `${group}${rh}`
-    }
-  }
-
-  // Already in correct format or unknown format
-  return bloodType
-}
-
-// export function getBloodGroupKey(bloodGroup: string): string {
-//   // Convert from display format (A+, B-) to database/URL format (A-POSITIVE, B-NEGATIVE)
-//   if (bloodGroup.length <= 3) {
-//     const group = bloodGroup.charAt(0)
-//     const rh = bloodGroup.endsWith("+") ? "POSITIVE" : "NEGATIVE"
-
-//     if (bloodGroup.includes("AB")) {
-//       return `AB-${rh}`
-//     }
-
-//     return `${group}-${rh}`
-//   }
-
-//   return bloodGroup
-// }
 
 export function formatDate(date: Date | string | null): string {
-  if (!date) return "N/A"
+  if (!date) return "N/A";
 
-  const d = new Date(date)
+  const d = new Date(date);
   return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  })
+  });
 }
 
-export function calculateNextEligibleDate(lastDonationDate: Date | null): Date | null {
-  if (!lastDonationDate) return null
+export function calculateNextEligibleDate(
+  lastDonationDate: Date | null
+): Date | null {
+  if (!lastDonationDate) return null;
 
-  const date = new Date(lastDonationDate)
-  date.setDate(date.getDate() + 56) // 56 days (8 weeks) is the standard waiting period
-  return date
+  const date = new Date(lastDonationDate);
+  date.setDate(date.getDate() + 56); // 56 days (8 weeks) is the standard waiting period
+  return date;
 }
 
 export function isEligibleToDonate(nextEligibleDate: Date | null): boolean {
-  if (!nextEligibleDate) return true
+  if (!nextEligibleDate) return true;
 
-  const today = new Date()
-  return today >= new Date(nextEligibleDate)
+  const today = new Date();
+  return today >= new Date(nextEligibleDate);
 }
 
 export function getInitials(name: string): string {
@@ -79,27 +40,73 @@ export function getInitials(name: string): string {
     .split(" ")
     .map((part) => part.charAt(0))
     .join("")
-    .toUpperCase()
+    .toUpperCase();
 }
 
-export function generateTempToken(number : number): string {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-  let token = ""
-  for (let i = 0; i < number; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length)
-    token += characters[randomIndex]
-  }
-  return token
+
+const JWT_SECRET = "jwt_secret";
+const ENCRYPTION_KEY = "encryption-key-32bytes1234567890"; // 32 bytes for AES-256
+
+function encrypt(text: string) {
+  const iv = crypto.randomBytes(16); // Generate new IV for each encryption
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    iv
+  );
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return `${iv.toString("hex")}:${encrypted}`;
 }
-export function formatPhoneNumber(phoneNumber: string): string {
-  // Remove all non-digit characters
-  const cleaned = phoneNumber.replace(/\D/g, "")
 
-  // Format the number as (XXX) XXX-XXXX
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/)
-  if (match) {
-    return `(${match[1]}) ${match[2]}-${match[3]}`
+function decrypt(encrypted: string) {
+  const [ivHex, encryptedText] = encrypted.split(":");
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(ENCRYPTION_KEY),
+    Buffer.from(ivHex, "hex")
+  );
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
+
+// Generates JWT with encrypted data
+export function generateEncryptedToken(data: string) {
+  const encryptedData = encrypt(data);
+  return jwt.sign({ encryptedData }, JWT_SECRET, { expiresIn: "10m" });
+}
+
+// Verifies, decrypts token and compares with original data
+export function verifyEncryptedToken(token: string, originalData: string) {
+  console.log("Verifying token:", token);
+  console.log("Original data:", originalData);
+  
+  try {
+    // Make sure jwt is properly imported
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Make sure we're working with an object
+    if (typeof decoded !== "object" || decoded === null) {
+      return { valid: false, error: "Invalid token format", isMatch: false };
+    }
+
+    // Safe access to encryptedData property
+    const encryptedData = (decoded as any).encryptedData;
+    if (!encryptedData) {
+      return {
+        valid: false,
+        error: "No encrypted data found in token",
+        isMatch: false,
+      };
+    }
+
+    // Decrypt and compare
+    const decrypted = decrypt(encryptedData);
+    const isMatch = decrypted === originalData;
+
+    return { valid: true, isMatch };
+  } catch (err: any) {
+    return { valid: false, error: err.message, isMatch: false };
   }
-
-  return phoneNumber // Return the original if it doesn't match the format
 }

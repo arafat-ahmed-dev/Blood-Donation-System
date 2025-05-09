@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import { useRouter } from "next/navigation"
-import { SessionProvider } from "next-auth/react"
-import { generateTempToken } from "@/lib/utils"
+import { signOut, useSession } from "next-auth/react"
 
 type User = {
   id: string
@@ -12,8 +11,8 @@ type User = {
   email: string
   bloodType: string
   isAdmin: boolean
-  donorLevel: string
-  totalDonations: number
+  donorLevel?: string
+  totalDonations?: number
   lastDonationDate?: Date
   nextEligibleDate?: Date
   image?: string
@@ -23,8 +22,9 @@ type AuthContextType = {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
-  register: (userData: any) => Promise<{ success: boolean; message?: string  ; tempToken?: string }>
+  sendOTP: (email: string) => Promise<{ success: boolean; message?: string }>
+  verifyOTP: (email: string, otp: string) => Promise<{ success: boolean; message?: string }>
+  register: (userData: any) => Promise<{ success: boolean; message?: string }>
   logout: () => Promise<void>
 }
 
@@ -32,58 +32,53 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  login: async () => ({ success: false }),
+  sendOTP: async () => ({ success: false }),
+  verifyOTP: async () => ({ success: false }),
   register: async () => ({ success: false }),
   logout: async () => { },
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const checkAuth = async () => {
+  const sendOTP = async (email: string) => {
     try {
-      const res = await fetch("/api/auth/me")
-      if (res.ok) {
-        const data = await res.json()
-        if (data.success) {
-          setUser(data.user)
-          return
-        }
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+      return {
+        success: data.success,
+        message: data.message,
       }
-      setUser(null)
     } catch (error) {
-      console.error("Auth check error:", error)
-      setUser(null)
-    } finally {
-      setIsLoading(false)
+      console.error("Send OTP error:", error)
+      return { success: false, message: "An error occurred while sending OTP" }
     }
   }
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const login = async (email: string, password: string) => {
+  const verifyOTP = async (email: string, otp: string) => {
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, otp }),
       })
 
       const data = await res.json()
 
-      if (data.success) {
-        setUser(data.user)
-        return { success: true }
+      return {
+        success: data.success,
+        message: data.message,
       }
-
-      return { success: false, message: data.message || "Login failed" }
     } catch (error) {
-      console.error("Login error:", error)
-      return { success: false, message: "An error occurred during login" }
+      console.error("Verify OTP error:", error)
+      return { success: false, message: "An error occurred during OTP verification" }
     }
   }
 
@@ -96,11 +91,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       const data = await res.json()
-      const tempToken = generateTempToken(data.number)
+
       return {
-        success: data.success,
-        message: data.message,
-        tempToken: tempToken ?? undefined,
+        success: !data.error,
+        message: data.error || "Registration successful",
       }
     } catch (error) {
       console.error("Registration error:", error)
@@ -109,31 +103,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
+    setLoading(true)
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
-      setUser(null)
+      await signOut({ redirect: false })
       router.push("/")
+      router.refresh()
     } catch (error) {
       console.error("Logout error:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  return (
-    <SessionProvider>
-      <AuthContext.Provider
-        value={{
-          user,
-          isAuthenticated: !!user,
-          isLoading,
-          login,
-          register,
-          logout,
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    </SessionProvider>
-  )
+  // Map the session user to our User type
+  const user = session?.user
+    ? {
+      id: session.user.id as string,
+      name: session.user.name || "",
+      email: session.user.email || "",
+      bloodType: (session.user.bloodType as string) || "",
+      isAdmin: (session.user.isAdmin as boolean) || false,
+      image: session.user.image || undefined,
+    }
+    : null
+
+  const contextValue = {
+    user,
+    isAuthenticated: !!session,
+    isLoading: status === "loading" || loading,
+    sendOTP,
+    verifyOTP,
+    register,
+    logout,
+  }
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

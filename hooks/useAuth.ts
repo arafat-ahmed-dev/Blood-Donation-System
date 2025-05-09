@@ -2,23 +2,53 @@
 
 import { useState } from "react"
 import { signIn, signOut, useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 
 export function useAuth() {
   const { data: session, status } = useSession()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  
+  const sendOTP = async (email: string) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await fetch("/api/auth/generateOTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      })
 
-  const login = async (email: string, password: string) => {
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Failed to send OTP")
+        return false
+      }
+
+      return true
+    }
+    catch (err) {
+      setError("An unexpected error occurred")
+      return false
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+  const login = async (email: string, otp: string , redirect?: string) => {
     setIsLoading(true)
     setError(null)
 
     try {
       const result = await signIn("credentials", {
-        redirect: false,
+        redirect: true,
         email,
-        password,
+        otp,
+        callbackUrl: redirect ?? "/",
       })
 
       if (result?.error) {
@@ -56,7 +86,7 @@ export function useAuth() {
       }
 
       // Auto login after registration
-      const loginResult = await login(userData.email, userData.password)
+      const loginResult = await login(userData.email, userData.otp)
       return loginResult
     } catch (err) {
       setError("An unexpected error occurred")
@@ -86,5 +116,6 @@ export function useAuth() {
     login,
     register,
     logout,
+    sendOTP,
   }
 }

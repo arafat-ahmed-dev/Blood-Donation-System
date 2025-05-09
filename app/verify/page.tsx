@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { decrypt } from "@/lib/data-encryption-utils"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function Verify() {
+    const { login } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [resendDisabled, setResendDisabled] = useState(false)
     const [countdown, setCountdown] = useState(0)
@@ -21,6 +24,7 @@ export default function Verify() {
     const email = searchParams.get('email') || ""
     const tempToken = searchParams.get('token') || ""
     const otpInputs = useRef<(HTMLInputElement | null)[]>([])
+    const redirectPath = searchParams.get('redirect');
 
     // If no email or temp token is available, redirect to registration
     useEffect(() => {
@@ -33,7 +37,8 @@ export default function Verify() {
             router.push('/auth')
         }
     }, [email, tempToken, router, toast])
-
+    // console.log(email, tempToken , otp , redirectPath);
+    
     // Initialize the array with 6 null values for 6 input fields
     useEffect(() => {
         otpInputs.current = otpInputs.current.slice(0, 6);
@@ -234,40 +239,31 @@ export default function Verify() {
 
         setIsLoading(true)
         try {
-            const response = await fetch('/api/verifyOTP', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email,
-                    otp,
-                    token: tempToken
-                }),
-            })
-
-            const data = await response.json()
-
-            if (response.ok) {
-                toast({
-                    title: "Verification successful",
-                    description: data.message || "Your account has been verified.",
-                })
-
-                // Store the actual auth token (not temporary token) that should be returned from verification
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                }
-
-                // Redirect to login or directly to dashboard after successful verification
-                router.push(data.redirectUrl || '/profile');
-            } else {
+            
+            const decryptData = decrypt(tempToken) as string;
+            console.log(decryptData);
+            const isTempTokenValid = decryptData === email ;            
+            if (!isTempTokenValid) {
                 toast({
                     variant: "destructive",
                     title: "Verification failed",
-                    description: data.message || "Please check your code and try again.",
+                    description: "Invalid temporary token. Please request a new one.",
                 })
+                return router.push('/auth')
             }
+            // const response = await signIn("credentials", {
+            //     email: email,
+            //     otp: otp,
+            //     redirect: true,
+            //     callbackUrl: redirectPath ?? "/profile",
+            // })
+            await login(email, otp, redirectPath || "/profile")            
+            toast({
+                title: "Email verified",
+                description: "Your email has been successfully verified.",
+            })
+            // router.push(redirectPath || "/profile")
+            // return response
         } catch (error) {
             toast({
                 variant: "destructive",

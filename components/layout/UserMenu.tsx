@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useState } from "react"
 import { NotificationCenter } from "../notifications/notification-center"
 import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { Separator } from "../ui/separator"
 
 interface UserMenuProps {
   user: {
@@ -55,10 +56,11 @@ export default function UserMenu({ user, notificationCount }: UserMenuProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
+                <div className="flex justify-between items-center px-2 space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.bloodType}</p>
+                  <p className="text-sm leading-none text-muted-foreground text-rose-50 bg-primary p-2 rounded-full">{user?.bloodType}</p>
                 </div>
+                <Separator className="my-2" />
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
