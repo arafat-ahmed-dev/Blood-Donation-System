@@ -15,50 +15,50 @@ import { useProfile } from "@/hooks/useProfile"
 import { useDonations } from "@/hooks/useDonations"
 import { useAppointments } from "@/hooks/useAppointments"
 import { useAuth } from "@/hooks/useAuth"
-import { formatBloodGroup } from "@/lib/utils"
 
 export default function ProfileClient() {
-  const user = {
-    id: "usr_001",
-    name: "Rahim Ahmed",
-    email: "rahim.ahmed@example.com",
-    phone: "01712345678",
-    address: "123 Lake View Road",
-    city: "Dhaka",
-    upazila: "Gulshan",
-    zip: "1212",
-    bloodType: "A+",
-    dateOfBirth: "1990-05-15",
-    lastDonation: "2025-03-01",
-    nextEligibleDate: "2025-04-4",
-    donorLevel: "Gold",
-    totalDonations: 12,
-    isAdmin: false,
-    image: "https://randomuser.me/api/portraits/men/1.jpg"
-  };
+  // const user = {
+  //   id: "usr_001",
+  //   name: "Rahim Ahmed",
+  //   email: "rahim.ahmed@example.com",
+  //   phone: "01712345678",
+  //   address: "123 Lake View Road",
+  //   city: "Dhaka",
+  //   upazila: "Gulshan",
+  //   zip: "1212",
+  //   bloodType: "A+",
+  //   dateOfBirth: "1990-05-15",
+  //   lastDonation: "2025-03-01",
+  //   nextEligibleDate: "2025-04-4",
+  //   donorLevel: "Gold",
+  //   totalDonations: 12,
+  //   isAdmin: false,
+  //   image: "https://randomuser.me/api/portraits/men/1.jpg"
+  // };
   const [activeTab, setActiveTab] = useState("overview")
-  // const { user, isLoading: profileLoading } = useProfile()
+  const { user, isLoading: profileLoading } = useProfile()
   const { donations, isLoading: donationsLoading } = useDonations(user?.id)
   const { appointments, isLoading: appointmentsLoading } = useAppointments(user?.id)
-  // const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout } = useAuth()
   const router = useRouter()
-  const isAuthenticated = true // Replace with actual authentication check
-
+  // const isAuthenticated = true // Replace with actual authentication check
+  console.log(user , isAuthenticated);
+  
 
   if (!isAuthenticated) {
-    router.push("/auth/login?redirect=/profile")
+    router.push("/auth?redirect=/profile")
     return null
   }
-  // if (profileLoading || !user) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-[60vh]">
-  //       <div className="text-center">
-  //         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-  //         <p className="text-muted-foreground">Loading profile...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  if (profileLoading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    )
+  }
 
   const fullName = `${user?.name}`;
   const initials = user?.name.split(' ').map(n => n[0]).join('');
@@ -408,7 +408,7 @@ export default function ProfileClient() {
                         <div key={donation.id} className="grid grid-cols-5 p-4 items-center">
                           <div>{new Date(donation.donationDate).toLocaleDateString()}</div>
                           <div>{donation.location}</div>
-                          <div>{formatBloodGroup(donation.bloodType)}</div>
+                          <div>{donation.bloodType}</div>
                           <div>{donation.units}</div>
                           <div>
                             <Badge className="bg-green-600">{donation.status}</Badge>
