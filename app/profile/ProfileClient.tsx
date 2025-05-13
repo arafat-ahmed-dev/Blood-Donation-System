@@ -15,6 +15,7 @@ import { useProfile } from "@/hooks/useProfile"
 import { useDonations } from "@/hooks/useDonations"
 import { useAppointments } from "@/hooks/useAppointments"
 import { useAuth } from "@/hooks/useAuth"
+import ProfileSettingsPage  from "@components/ProfileSettings"
 
 export default function ProfileClient() {
   // const user = {
@@ -502,6 +503,7 @@ export default function ProfileClient() {
 
           <TabsContent value="settings" className="space-y-6">
             <ProfileSettings user={user} />
+            <ProfileSettingsPage />
           </TabsContent>
         </Tabs>
       </div>

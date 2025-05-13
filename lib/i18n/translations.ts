@@ -1,0 +1,922 @@
+export type TranslationKey =
+  | "common.appName"
+  | "common.welcome"
+  | "common.loading"
+  | "common.error"
+  | "common.success"
+  | "common.save"
+  | "common.cancel"
+  | "common.submit"
+  | "common.edit"
+  | "common.delete"
+  | "common.view"
+  | "common.search"
+  | "common.filter"
+  | "common.sort"
+  | "common.next"
+  | "common.previous"
+  | "common.back"
+  | "common.home"
+  | "common.profile"
+  | "common.settings"
+  | "common.logout"
+  | "common.login"
+  | "common.register"
+  | "common.email"
+  | "common.password"
+  | "common.name"
+  | "common.phone"
+  | "common.address"
+  | "common.city"
+  | "common.state"
+  | "common.zip"
+  | "common.bloodType"
+  | "common.dateOfBirth"
+  | "common.gender"
+  | "common.male"
+  | "common.female"
+  | "common.other"
+  | "common.yes"
+  | "common.no"
+  | "common.confirm"
+  | "common.cancel"
+  | "common.close"
+  | "common.open"
+  | "common.status"
+  | "common.date"
+  | "common.time"
+  | "common.location"
+  | "common.units"
+  | "common.urgency"
+  | "common.priority"
+  | "common.category"
+  | "common.message"
+  | "common.subject"
+  | "common.description"
+  | "common.notes"
+  | "common.actions"
+  | "common.details"
+  | "common.summary"
+  | "common.total"
+  | "common.average"
+  | "common.min"
+  | "common.max"
+  | "common.count"
+  | "common.percentage"
+  | "common.ratio"
+  | "common.rate"
+  | "common.score"
+  | "common.level"
+  | "common.rank"
+  | "common.position"
+  | "common.title"
+  | "common.subtitle"
+  | "common.content"
+  | "common.header"
+  | "common.footer"
+  | "common.sidebar"
+  | "common.main"
+  | "common.section"
+  | "common.panel"
+  | "common.tab"
+  | "common.menu"
+  | "common.submenu"
+  | "common.item"
+  | "common.list"
+  | "common.grid"
+  | "common.table"
+  | "common.row"
+  | "common.column"
+  | "common.cell"
+  | "common.card"
+  | "common.badge"
+  | "common.tag"
+  | "common.icon"
+  | "common.image"
+  | "common.avatar"
+  | "common.logo"
+  | "common.banner"
+  | "common.hero"
+  | "common.slider"
+  | "common.carousel"
+  | "common.gallery"
+  | "common.modal"
+  | "common.dialog"
+  | "common.popup"
+  | "common.tooltip"
+  | "common.notification"
+  | "common.alert"
+  | "common.warning"
+  | "common.info"
+  | "common.success"
+  | "common.error"
+  | "common.danger"
+  | "common.primary"
+  | "common.secondary"
+  | "common.tertiary"
+  | "common.accent"
+  | "common.neutral"
+  | "common.light"
+  | "common.dark"
+  | "common.theme"
+  | "common.mode"
+  | "common.style"
+  | "common.layout"
+  | "common.design"
+  | "common.color"
+  | "common.size"
+  | "common.shape"
+  | "common.width"
+  | "common.height"
+  | "common.depth"
+  | "common.weight"
+  | "common.opacity"
+  | "common.transparency"
+  | "common.visibility"
+  | "common.hidden"
+  | "common.visible"
+  | "common.show"
+  | "common.hide"
+  | "common.expand"
+  | "common.collapse"
+  | "common.open"
+  | "common.close"
+  | "common.toggle"
+  | "common.switch"
+  | "common.slider"
+  | "common.range"
+  | "common.min"
+  | "common.max"
+  | "common.start"
+  | "common.end"
+  | "common.begin"
+  | "common.finish"
+  | "common.complete"
+  | "common.incomplete"
+  | "common.progress"
+  | "common.loading"
+  | "common.processing"
+  | "common.waiting"
+  | "common.pending"
+  | "common.active"
+  | "common.inactive"
+  | "common.enabled"
+  | "common.disabled"
+  | "common.locked"
+  | "common.unlocked"
+  | "common.secure"
+  | "common.insecure"
+  | "common.public"
+  | "common.private"
+  | "common.shared"
+  | "common.personal"
+  | "common.global"
+  | "common.local"
+  | "common.remote"
+  | "common.online"
+  | "common.offline"
+  | "common.connected"
+  | "common.disconnected"
+  | "common.sync"
+  | "common.async"
+  | "common.automatic"
+  | "common.manual"
+  | "common.custom"
+  | "common.default"
+  | "common.standard"
+  | "common.basic"
+  | "common.advanced"
+  | "common.expert"
+  | "common.beginner"
+  | "common.intermediate"
+  | "common.professional"
+  | "common.amateur"
+  | "common.novice"
+  | "common.master"
+  | "common.apprentice"
+  | "common.student"
+  | "common.teacher"
+  | "common.mentor"
+  | "common.coach"
+  | "common.trainer"
+  | "common.trainee"
+  | "common.employee"
+  | "common.employer"
+  | "common.manager"
+  | "common.admin"
+  | "common.user"
+  | "common.guest"
+  | "common.member"
+  | "common.subscriber"
+  | "common.follower"
+  | "common.leader"
+  | "common.partner"
+  | "common.client"
+  | "common.customer"
+  | "common.vendor"
+  | "common.supplier"
+  | "common.provider"
+  | "common.consumer"
+  | "common.producer"
+  | "common.creator"
+  | "common.author"
+  | "common.editor"
+  | "common.reviewer"
+  | "common.moderator"
+  | "common.contributor"
+  | "common.collaborator"
+  | "common.team"
+  | "common.group"
+  | "common.community"
+  | "common.organization"
+  | "common.company"
+  | "common.business"
+  | "common.enterprise"
+  | "common.startup"
+  | "common.corporation"
+  | "common.institution"
+  | "common.agency"
+  | "common.department"
+  | "common.division"
+  | "common.unit"
+  | "common.branch"
+  | "common.office"
+  | "common.headquarters"
+  | "common.location"
+  | "common.address"
+  | "common.contact"
+  | "common.phone"
+  | "common.email"
+  | "common.website"
+  | "common.url"
+  | "common.link"
+  | "common.reference"
+  | "common.source"
+  | "common.target"
+  | "common.destination"
+  | "common.origin"
+  | "common.path"
+  | "common.route"
+  | "common.direction"
+  | "common.navigation"
+  | "common.map"
+  | "common.location"
+  | "common.position"
+  | "common.coordinates"
+  | "common.latitude"
+  | "common.longitude"
+  | "common.altitude"
+  | "common.depth"
+  | "common.distance"
+  | "common.speed"
+  | "common.velocity"
+  | "common.acceleration"
+  | "common.force"
+  | "common.pressure"
+  | "common.temperature"
+  | "common.humidity"
+  | "common.weather"
+  | "common.climate"
+  | "common.environment"
+  | "common.nature"
+  | "common.landscape"
+  | "common.scenery"
+  | "common.view"
+  | "common.perspective"
+  | "common.angle"
+  | "common.direction"
+  | "common.orientation"
+  | "common.rotation"
+  | "common.spin"
+  | "common.twist"
+  | "common.turn"
+  | "common.flip"
+  | "common.mirror"
+  | "common.reflect"
+  | "common.refract"
+  | "common.bend"
+  | "common.curve"
+  | "common.straight"
+  | "common.line"
+  | "common.circle"
+  | "common.square"
+  | "common.rectangle"
+  | "common.triangle"
+  | "common.polygon"
+  | "common.shape"
+  | "common.pattern"
+  | "common.texture"
+  | "common.surface"
+  | "common.volume"
+  | "common.area"
+  | "common.perimeter"
+  | "common.circumference"
+  | "common.diameter"
+  | "common.radius"
+  | "common.center"
+  | "common.middle"
+  | "common.edge"
+  | "common.corner"
+  | "common.vertex"
+  | "common.point"
+  | "common.dot"
+  | "common.spot"
+  | "common.mark"
+  | "common.sign"
+  | "common.symbol"
+  | "common.icon"
+  | "common.logo"
+  | "common.brand"
+  | "common.identity"
+  | "common.signature"
+  | "common.stamp"
+  | "common.seal"
+  | "common.emblem"
+  | "common.badge"
+  | "common.tag"
+  | "common.label"
+  | "common.sticker"
+  | "common.marker"
+  | "common.indicator"
+  | "common.signal"
+  | "common.alert"
+  | "common.alarm"
+  | "common.warning"
+  | "common.caution"
+  | "common.danger"
+  | "common.hazard"
+  | "common.risk"
+  | "common.threat"
+  | "common.security"
+  | "common.safety"
+  | "common.protection"
+  | "common.defense"
+  | "common.shield"
+  | "common.guard"
+  | "common.watch"
+  | "common.monitor"
+  | "common.track"
+  | "common.trace"
+  | "common.follow"
+  | "common.lead"
+  | "common.guide"
+  | "common.direct"
+  | "common.steer"
+  | "common.navigate"
+  | "common.pilot"
+  | "common.drive"
+  | "common.ride"
+  | "common.fly"
+  | "common.sail"
+  | "common.swim"
+  | "common.float"
+  | "common.sink"
+  | "common.rise"
+  | "common.fall"
+  | "common.climb"
+  | "common.descend"
+  | "common.ascend"
+  | "common.up"
+  | "common.down"
+  | "common.left"
+  | "common.right"
+  | "common.forward"
+  | "common.backward"
+  | "common.sideways"
+  | "common.diagonal"
+  | "common.horizontal"
+  | "common.vertical"
+  | "common.parallel"
+  | "common.perpendicular"
+  | "common.intersect"
+  | "common.cross"
+  | "common.overlap"
+  | "common.merge"
+  | "common.split"
+  | "common.divide"
+  | "common.separate"
+  | "common.join"
+  | "common.connect"
+  | "common.link"
+  | "common.bind"
+  | "common.tie"
+  | "common.fasten"
+  | "common.secure"
+  | "common.loose"
+  | "common.tight"
+  | "common.firm"
+  | "common.soft"
+  | "common.hard"
+  | "common.rigid"
+  | "common.flexible"
+  | "common.elastic"
+  | "common.plastic"
+  | "common.metal"
+  | "common.wood"
+  | "common.glass"
+  | "common.ceramic"
+  | "common.fabric"
+  | "common.textile"
+  | "common.material"
+  | "common.substance"
+  | "common.matter"
+  | "common.element"
+  | "common.compound"
+  | "common.mixture"
+  | "common.solution"
+  | "common.liquid"
+  | "common.solid"
+  | "common.gas"
+  | "common.plasma"
+  | "common.energy"
+  | "common.power"
+  | "common.force"
+  | "common.strength"
+  | "common.weakness"
+  | "common.advantage"
+  | "common.disadvantage"
+  | "common.benefit"
+  | "common.drawback"
+  | "common.pro"
+  | "common.con"
+  | "common.positive"
+  | "common.negative"
+  | "common.neutral"
+  | "common.balanced"
+  | "common.imbalanced"
+  | "common.stable"
+  | "common.unstable"
+  | "common.steady"
+  | "common.unsteady"
+  | "common.fixed"
+  | "common.mobile"
+  | "common.portable"
+  | "common.stationary"
+  | "common.moving"
+  | "common.still"
+  | "common.static"
+  | "common.dynamic"
+  | "common.active"
+  | "common.passive"
+  | "common.reactive"
+  | "common.proactive"
+  | "common.responsive"
+  | "common.unresponsive"
+  | "common.sensitive"
+  | "common.insensitive"
+  | "common.aware"
+  | "common.unaware"
+  | "common.conscious"
+  | "common.unconscious"
+  | "common.awake"
+  | "common.asleep"
+  | "common.alive"
+  | "common.dead"
+  | "common.living"
+  | "common.nonliving"
+  | "common.organic"
+  | "common.inorganic"
+  | "common.natural"
+  | "common.artificial"
+  | "common.synthetic"
+  | "common.genuine"
+  | "common.fake"
+  | "common.real"
+  | "common.virtual"
+  | "common.actual"
+  | "common.potential"
+  | "common.existing"
+  | "common.nonexistent"
+  | "common.present"
+  | "common.absent"
+  | "common.available"
+  | "common.unavailable"
+  | "common.accessible"
+  | "common.inaccessible"
+  | "common.open"
+  | "common.closed"
+  | "common.public"
+  | "common.private"
+  | "common.shared"
+  | "common.exclusive"
+  | "common.inclusive"
+  | "common.comprehensive"
+  | "common.limited"
+  | "common.unlimited"
+  | "common.finite"
+  | "common.infinite"
+  | "common.bounded"
+  | "common.unbounded"
+  | "common.restricted"
+  | "common.unrestricted"
+  | "common.constrained"
+  | "common.unconstrained"
+  | "common.free"
+  | "common.bound"
+  | "common.dependent"
+  | "common.independent"
+  | "common.autonomous"
+  | "common.controlled"
+  | "common.regulated"
+  | "common.unregulated"
+  | "common.managed"
+  | "common.unmanaged"
+  | "common.supervised"
+  | "common.unsupervised"
+  | "common.monitored"
+  | "common.unmonitored"
+  | "common.tracked"
+  | "common.untracked"
+  | "common.recorded"
+  | "common.unrecorded"
+  | "common.documented"
+  | "common.undocumented"
+  | "common.registered"
+  | "common.unregistered"
+  | "common.official"
+  | "common.unofficial"
+  | "common.formal"
+  | "common.informal"
+  | "common.professional"
+  | "common.amateur"
+  | "common.expert"
+  | "common.novice"
+  | "common.skilled"
+  | "common.unskilled"
+  | "common.trained"
+  | "common.untrained"
+  | "common.educated"
+  | "common.uneducated"
+  | "common.appName"
+  | "common.admin"
+  | "common.search"
+  | "common.dashboard"
+  | "common.bloodInventory"
+  | "common.requests"
+  | "common.donors"
+  | "common.informed"
+  | "common.uninformed"
+  | "common.knowledgeable"
+  | "common.ignorant"
+  | "common.wise"
+  | "common.foolish"
+  | "common.smart"
+  | "common.dumb"
+  | "common.intelligent"
+  | "common.stupid"
+  | "common.clever"
+  | "common.simple"
+  | "common.complex"
+  | "common.complicated"
+  | "common.straightforward"
+  | "common.convoluted"
+  | "common.clear"
+  | "common.unclear"
+  | "common.obvious"
+  | "common.subtle"
+  | "common.explicit"
+  | "common.implicit"
+  | "common.direct"
+  | "common.indirect"
+  | "common.literal"
+  | "common.figurative"
+  | "common.concrete"
+  | "common.abstract"
+  | "common.specific"
+  | "common.general"
+  | "common.particular"
+  | "common.universal"
+  | "common.unique"
+  | "common.common"
+  | "common.rare"
+  | "common.frequent"
+  | "common.infrequent"
+  | "common.regular"
+  | "common.irregular"
+  | "common.periodic"
+  | "common.aperiodic"
+  | "common.cyclic"
+  | "common.acyclic"
+  | "common.continuous"
+  | "common.discontinuous"
+  | "common.smooth"
+  | "common.rough"
+  | "common.even"
+  | "common.uneven"
+  | "common.balanced"
+  | "common.unbalanced"
+  | "common.symmetrical"
+  | "common.asymmetrical"
+  | "common.proportional"
+  | "common.disproportional"
+  | "common.relative"
+  | "common.absolute"
+  | "auth.signIn"
+  | "auth.signOut"
+  | "auth.register"
+  | "auth.forgotPassword"
+  | "auth.resetPassword"
+  | "auth.verifyEmail"
+  | "auth.enterOtp"
+  | "auth.resendOtp"
+  | "auth.otpSent"
+  | "auth.invalidOtp"
+  | "auth.expiredOtp"
+  | "auth.accountCreated"
+  | "auth.loginSuccess"
+  | "auth.loginFailed"
+  | "auth.logoutSuccess"
+  | "auth.unauthorized"
+  | "auth.sessionExpired"
+  | "donor.profile"
+  | "donor.donations"
+  | "donor.appointments"
+  | "donor.eligibility"
+  | "donor.history"
+  | "donor.achievements"
+  | "donor.level"
+  | "donor.nextEligibleDate"
+  | "donor.lastDonation"
+  | "donor.totalDonations"
+  | "donation.schedule"
+  | "donation.cancel"
+  | "donation.reschedule"
+  | "donation.complete"
+  | "donation.history"
+  | "donation.certificate"
+  | "donation.thankYou"
+  | "inventory.status"
+  | "inventory.add"
+  | "inventory.remove"
+  | "inventory.update"
+  | "inventory.transfer"
+  | "inventory.audit"
+  | "inventory.critical"
+  | "inventory.low"
+  | "inventory.adequate"
+  | "request.create"
+  | "request.update"
+  | "request.cancel"
+  | "request.fulfill"
+  | "request.urgent"
+  | "request.regular"
+  | "request.status"
+  | "analytics.overview"
+  | "analytics.donations"
+  | "analytics.inventory"
+  | "analytics.requests"
+  | "analytics.donors"
+  | "analytics.trends"
+  | "analytics.predictions"
+  | "analytics.insights"
+  | "admin.dashboard"
+  | "admin.users"
+  | "admin.inventory"
+  | "admin.requests"
+  | "admin.donations"
+  | "admin.appointments"
+  | "admin.reports"
+  | "admin.settings"
+  | "admin.notifications"
+  | "admin.support"
+  | "support.createTicket"
+  | "support.viewTickets"
+  | "support.addMessage"
+  | "support.closeTicket"
+  | "support.reopenTicket"
+  | "support.escalate"
+  | "support.resolve"
+  | "notification.new"
+  | "notification.read"
+  | "notification.markAsRead"
+  | "notification.markAllAsRead"
+  | "notification.delete"
+  | "notification.deleteAll"
+  | "notification.settings"
+  | "notification.enable"
+  | "notification.disable"
+  | "error.general"
+  | "error.notFound"
+  | "error.serverError"
+  | "error.validation"
+  | "error.unauthorized"
+  | "error.forbidden"
+  | "error.badRequest"
+  | "error.timeout"
+  | "error.offline"
+  | "error.tryAgain"
+  | "success.saved"
+  | "success.updated"
+  | "success.deleted"
+  | "success.created"
+  | "success.sent"
+  | "success.uploaded"
+  | "success.downloaded"
+  | "success.completed"
+  | "success.processed"
+
+export const translations = {
+  en: {
+    "common.appName": "LifeFlow Blood Donation",
+    "common.welcome": "Welcome to LifeFlow",
+    "common.loading": "Loading...",
+    "common.error": "Error",
+    "common.success": "Success",
+    "common.save": "Save",
+    "common.cancel": "Cancel",
+    "common.submit": "Submit",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.view": "View",
+    "common.search": "Search",
+    "common.filter": "Filter",
+    "common.sort": "Sort",
+    "common.next": "Next",
+    "common.previous": "Previous",
+    "common.back": "Back",
+    "common.home": "Home",
+    "common.profile": "Profile",
+    "common.settings": "Settings",
+    "common.logout": "Logout",
+    "common.login": "Login",
+    "common.register": "Register",
+    "common.email": "Email",
+    "common.password": "Password",
+    "common.name": "Name",
+    "common.phone": "Phone",
+    "common.address": "Address",
+    "common.city": "City",
+    "common.state": "State",
+    "common.zip": "Zip Code",
+    "common.bloodType": "Blood Type",
+    "common.dateOfBirth": "Date of Birth",
+    "common.gender": "Gender",
+    "common.male": "Male",
+    "common.female": "Female",
+    "common.other": "Other",
+    "common.yes": "Yes",
+    "common.no": "No",
+    auth: {
+      login: {
+        title: "Sign In",
+        description: "Sign in to your account to continue",
+        email: "Email",
+        otp: "OTP",
+        emailLabel: "Email address",
+        emailPlaceholder: "Enter your email",
+        otpLabel: "One-Time Password",
+        otpPlaceholder: "Enter the OTP sent to your email",
+        sendOtp: "Send OTP",
+        sending: "Sending...",
+        verify: "Verify & Sign In",
+        verifying: "Verifying...",
+        or: "or",
+        googleSignIn: "Sign in with Google",
+        otpSent: "OTP sent to {email}. Please check your inbox.",
+        backToEmail: "Back to email",
+        noAccount: "Don't have an account?",
+        register: "Register",
+      },
+      // Other auth translations...
+    },
+    signInWithGoogle: "Sign in with Google",
+    or: "or",
+  },
+  es: {
+    "common.appName": "LifeFlow Blood Donation",
+    "common.welcome": "Welcome to LifeFlow",
+    "common.loading": "Loading...",
+    "common.error": "Error",
+    "common.success": "Success",
+    "common.save": "Save",
+    "common.cancel": "Cancel",
+    "common.submit": "Submit",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.view": "View",
+    "common.search": "Search",
+    "common.filter": "Filter",
+    "common.sort": "Sort",
+    "common.next": "Next",
+    "common.previous": "Previous",
+    "common.back": "Back",
+    "common.home": "Home",
+    "common.profile": "Profile",
+    "common.settings": "Settings",
+    "common.logout": "Logout",
+    "common.login": "Login",
+    "common.register": "Register",
+    "common.email": "Email",
+    "common.password": "Password",
+    "common.name": "Name",
+    "common.phone": "Phone",
+    "common.address": "Address",
+    "common.city": "City",
+    "common.state": "State",
+    "common.zip": "Zip Code",
+    "common.bloodType": "Blood Type",
+    "common.dateOfBirth": "Date of Birth",
+    "common.gender": "Gender",
+    "common.male": "Male",
+    "common.female": "Female",
+    "common.other": "Other",
+    "common.yes": "Yes",
+    "common.no": "No",
+    auth: {
+      login: {
+        title: "Iniciar Sesión",
+        description: "Inicia sesión en tu cuenta para continuar",
+        email: "Correo",
+        otp: "OTP",
+        emailLabel: "Dirección de correo",
+        emailPlaceholder: "Ingresa tu correo",
+        otpLabel: "Contraseña de un solo uso",
+        otpPlaceholder: "Ingresa el OTP enviado a tu correo",
+        sendOtp: "Enviar OTP",
+        sending: "Enviando...",
+        verify: "Verificar e Iniciar Sesión",
+        verifying: "Verificando...",
+        or: "o",
+        googleSignIn: "Iniciar sesión con Google",
+        otpSent: "OTP enviado a {email}. Por favor revisa tu bandeja de entrada.",
+        backToEmail: "Volver al correo",
+        noAccount: "¿No tienes una cuenta?",
+        register: "Registrarse",
+      },
+      // Other auth translations...
+    },
+
+    // Other translations...
+    signInWithGoogle: "Iniciar sesión con Google",
+    or: "o",
+  },
+  bn: {
+    "common.appName": "লাইফফ্লো রক্তদান",
+    "common.welcome": "লাইফফ্লোতে স্বাগতম",
+    "common.loading": "লোড হচ্ছে...",
+    "common.error": "ত্রুটি",
+    "common.success": "সফল",
+    "common.save": "সংরক্ষণ করুন",
+    "common.cancel": "বাতিল করুন",
+    "common.submit": "জমা দিন",
+    "common.edit": "সম্পাদনা করুন",
+    "common.delete": "মুছুন",
+    "common.view": "দেখুন",
+    "common.search": "অনুসন্ধান করুন",
+    "common.filter": "ফিল্টার করুন",
+    "common.sort": "সাজান",
+    "common.next": "পরবর্তী",
+    "common.previous": "পূর্ববর্তী",
+    "common.back": "পিছনে",
+    "common.home": "হোম",
+    "common.profile": "প্রোফাইল",
+    "common.settings": "সেটিংস",
+    "common.logout": "লগআউট",
+    "common.login": "লগইন",
+    "common.register": "নিবন্ধন করুন",
+    "common.email": "ইমেইল",
+    "common.password": "পাসওয়ার্ড",
+    "common.name": "নাম",
+    "common.phone": "ফোন",
+    "common.address": "ঠিকানা",
+    "common.city": "শহর",
+    "common.state": "রাজ্য",
+    "common.zip": "জিপ কোড",
+    "common.bloodType": "রক্তের গ্রুপ",
+    "common.dateOfBirth": "জন্ম তারিখ",
+    "common.gender": "লিঙ্গ",
+    "common.male": "পুরুষ",
+    "common.female": "মহিলা",
+    "common.other": "অন্যান্য",
+    "common.yes": "হ্যাঁ",
+    "common.no": "না",
+    "auth.signIn": "সাইন ইন করুন",
+    "auth.signOut": "সাইন আউট করুন",
+    "auth.register": "নিবন্ধন করুন",
+    "auth.forgotPassword": "পাসওয়ার্ড ভুলে গেছেন",
+    "auth.resetPassword": "পাসওয়ার্ড রিসেট করুন",
+    "auth.verifyEmail": "ইমেইল যাচাই করুন",
+    "auth.enterOtp": "ওটিপি প্রবেশ করান",
+    "auth.resendOtp": "ওটিপি পুনরায় পাঠান",
+    "auth.otpSent": "আপনার ইমেইলে ওটিপি পাঠানো হয়েছে",
+    "auth.invalidOtp": "অবৈধ ওটিপি",
+    "auth.expiredOtp": "ওটিপি মেয়াদ শেষ হয়েছে",
+    "auth.accountCreated": "অ্যাকাউন্ট সফলভাবে তৈরি করা হয়েছে",
+    "auth.loginSuccess": "সফলভাবে লগইন করা হয়েছে",
+    "auth.loginFailed": "লগইন ব্যর্থ হয়েছে",
+    "auth.logoutSuccess": "সফলভাবে লগআউট করা হয়েছে",
+    "auth.unauthorized": "অননুমোদিত অ্যাক্সেস",
+    "auth.sessionExpired": "সেশন শেষ হয়েছে, অনুগ্রহ করে আবার লগইন করুন",
+    "donor.profile": "দাতার প্রোফাইল",
+    "donor.donations": "আমার দান",
+    "donor.appointments": "আমার অ্যাপয়েন্টমেন্ট",
+    "donor.eligibility": "যোগ্যতার স্থিতি",
+    "donor.history": "দানের ইতিহাস",
+    "donor.achievements": "অর্জন",
+    "donor.level": "দাতা স্তর",
+    "donor.nextEligibleDate": "পরবর্তী যোগ্য তারিখ",
+    "donor.lastDonation": "শেষ দান",
+    "donor.totalDonations": "মোট দান",
+    // Additional Bengali translations would go here
+  },
+}
