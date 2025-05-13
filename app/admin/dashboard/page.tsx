@@ -272,17 +272,16 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <div className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r bg-background z-30">
-        <div className="flex items-center gap-2 px-6 py-4 border-b">
-          <Heart className="h-6 w-6 text-red-600" />
-          <span className="text-xl font-bold">LifeFlow Admin</span>
+        <div className="flex items-center gap-2 px-6 py-4 h-16 border-b">
+          <Image src="/logo.svg" alt="Logo" width={25} height={25} className="rounded-full" />
+          <span className="text-lg font-bold">Rokto Shetu Admin</span>
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">
           <nav className="flex-1 px-4 py-4 space-y-1">
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "overview" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "overview" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("overview")}
             >
               <LayoutDashboard className="h-5 w-5" />
@@ -290,9 +289,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "inventory" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "inventory" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("inventory")}
             >
               <Droplet className="h-5 w-5" />
@@ -300,9 +298,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "donors" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "donors" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("donors")}
             >
               <Users className="h-5 w-5" />
@@ -310,9 +307,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "requests" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "requests" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("requests")}
             >
               <Heart className="h-5 w-5" />
@@ -320,9 +316,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "appointments" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "appointments" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("appointments")}
             >
               <Calendar className="h-5 w-5" />
@@ -330,9 +325,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "centers" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "centers" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("centers")}
             >
               <MapPin className="h-5 w-5" />
@@ -340,9 +334,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "reports" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "reports" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("reports")}
             >
               <FileText className="h-5 w-5" />
@@ -350,9 +343,8 @@ export default function AdminDashboard() {
             </Link>
             <Link
               href="/admin/dashboard"
-              className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-                selectedTab === "settings" ? "bg-red-100 text-red-600" : "hover:bg-muted"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md ${selectedTab === "settings" ? "bg-red-100 text-red-600" : "hover:bg-muted"
+                }`}
               onClick={() => setSelectedTab("settings")}
             >
               <Settings className="h-5 w-5" />
@@ -376,12 +368,12 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="flex-1 lg:pl-64">
         {/* Top Navigation */}
-        <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-20 flex w-full items-center justify-between h-16 px-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex lg:hidden items-center gap-2">
-            <Heart className="h-6 w-6 text-red-600" />
-            <span className="text-xl font-bold">LifeFlow Admin</span>
+            <Image src="/logo.svg" alt="Logo" width={25} height={25} className="rounded-full" />
+            <span className="text-xl font-bold">Rokto Shetu Admin</span>
           </div>
-          <div className="flex items-center gap-4 lg:gap-6">
+          <div className="flex items-center lg:w-full justify-between gap-4 lg:gap-6">
             <div className="relative w-full max-w-sm hidden md:flex">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -390,16 +382,18 @@ export default function AdminDashboard() {
                 className="w-full pl-8 bg-background rounded-lg border border-input"
               />
             </div>
-            <Button variant="outline" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-600"></span>
-            </Button>
-            <div className="relative flex items-center gap-2">
-              <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image src="/placeholder.svg?height=32&width=32" alt="Admin" fill className="object-cover" />
+            <div className="flex gap-4">
+              <Button variant="outline" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-600"></span>
+              </Button>
+              <div className="relative flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                  <Image src="/placeholder.svg?height=32&width=32" alt="Admin" fill className="object-cover" />
+                </div>
+                <span className="hidden md:inline-block text-sm font-medium">{"Admin User"}</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </div>
-              <span className="hidden md:inline-block text-sm font-medium">Admin User</span>
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </header>
