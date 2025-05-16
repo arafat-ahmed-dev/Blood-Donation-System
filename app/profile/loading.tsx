@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { motion } from "framer-motion";
+import { AppLoader } from "@/components/ui/app-loader";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function ProfileLoading() {
   return (
@@ -24,22 +24,36 @@ export default function ProfileLoading() {
               <motion.div
                 className="h-[400px] bg-card rounded-lg shadow-sm animate-pulse"
                 animate={{ opacity: [0.5, 0.7, 0.5] }}
-                transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, delay: 0.1 }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Number.POSITIVE_INFINITY,
+                  delay: 0.1,
+                }}
               />
               <motion.div
                 className="h-[400px] md:col-span-2 bg-card rounded-lg shadow-sm animate-pulse"
                 animate={{ opacity: [0.5, 0.7, 0.5] }}
-                transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, delay: 0.2 }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Number.POSITIVE_INFINITY,
+                  delay: 0.2,
+                }}
               />
             </div>
           </div>
 
           <div className="flex justify-center mt-12">
-            <LoadingSpinner text="Loading profile..." />
+            <AppLoader
+              active={true}
+              context="profile"
+              size="lg"
+              overlay={false}
+              fullscreen={false}
+            />
           </div>
         </div>
       </main>
       <Footer />
     </>
-  )
+  );
 }

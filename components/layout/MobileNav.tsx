@@ -9,11 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useAuth } from "@/hooks/useAuth"
 import AuthButtons from "./AuthButtons"
 
-import { useState } from "react"
 import { Separator } from "../ui/separator"
+import { useAuth } from "../auth/auth-provider"
 
 // Animation variants
 const menuVariants = {

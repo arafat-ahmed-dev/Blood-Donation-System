@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { motion } from "framer-motion";
+import { AppLoader } from "@/components/ui/app-loader";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function DonorSearchLoading() {
   return (
@@ -14,7 +14,8 @@ export default function DonorSearchLoading() {
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h1 className="text-4xl font-extrabold mb-4">Find Blood Donors</h1>
             <p className="text-lg text-muted-foreground">
-              Search for potential blood donors based on blood group, location, and availability.
+              Search for potential blood donors based on blood group, location,
+              and availability.
             </p>
           </div>
 
@@ -50,11 +51,25 @@ export default function DonorSearchLoading() {
           </div>
 
           <div className="flex justify-center mt-12">
-            <LoadingSpinner text="Loading donors..." />
+            <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AppLoader
+                  active={true}
+                  context="donation"
+                  size="lg"
+                  overlay={false}
+                  fullscreen={false}
+                />
+              </motion.div>
+            </div>
           </div>
         </div>
       </main>
       <Footer />
     </>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { motion } from "framer-motion";
+import { AppLoader } from "@/components/ui/app-loader";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function AnalyticsLoading() {
   return (
@@ -12,8 +12,12 @@ export default function AnalyticsLoading() {
       <main className="py-16 bg-gray-50 min-h-[70vh]">
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h1 className="text-4xl font-extrabold mb-4">Analytics Dashboard</h1>
-            <p className="text-lg text-muted-foreground">View donation trends, donor retention, and inventory usage</p>
+            <h1 className="text-4xl font-extrabold mb-4">
+              Analytics Dashboard
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              View donation trends, donor retention, and inventory usage
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
@@ -51,11 +55,27 @@ export default function AnalyticsLoading() {
           </div>
 
           <div className="flex justify-center mt-12">
-            <LoadingSpinner text="Loading analytics data..." />
+            <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AppLoader
+                  active={true}
+                  context="general"
+                  size="lg"
+                  overlay={false}
+                  fullscreen={false}
+                  text="Processing Analytics"
+                  showProgress
+                />
+              </motion.div>
+            </div>
           </div>
         </div>
       </main>
       <Footer />
     </>
-  )
+  );
 }

@@ -1,26 +1,26 @@
-import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
-    const status = searchParams.get("status")
-    const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
-    const skip = (page - 1) * limit
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    const status = searchParams.get("status");
+    const page = Number.parseInt(searchParams.get("page") || "1");
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
 
     // Build the query
-    const query: any = {}
+    const query: any = {};
 
     if (userId) {
-      query.donorId = userId
+      query.donorId = userId;
     }
 
     if (status) {
-      query.status = status
+      query.status = status;
     }
 
     // Get appointments
@@ -29,8 +29,7 @@ export async function GET(request: Request) {
       include: {
         donor: {
           select: {
-            firstName: true,
-            lastName: true,
+            name: true,
             bloodType: true,
           },
         },
@@ -40,12 +39,12 @@ export async function GET(request: Request) {
       },
       skip,
       take: limit,
-    })
+    });
 
     // Get total count
     const total = await prisma.appointment.count({
       where: query,
-    })
+    });
 
     return NextResponse.json({
       appointments,
@@ -55,53 +54,78 @@ export async function GET(request: Request) {
         limit,
         pages: Math.ceil(total / limit),
       },
-    })
+    });
   } catch (error) {
-    console.error("Error fetching appointments:", error)
-    return NextResponse.json({ error: "Failed to fetch appointments" }, { status: 500 })
+    console.error("Error fetching appointments:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch appointments" },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json()
-    const { donorId, date, time, location } = body
+    const body = await request.json();
+    const { donorId, date, time, location } = body;
 
     // Validate required fields
     if (!donorId || !date || !time || !location) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
+
+    // Generate a unique appointment ID (e.g., APT-2045)
+    const latestAppointment = await prisma.appointment.findFirst({
+      orderBy: {
+        appointmentId: "desc",
+      },
+    });
+
+    const nextNumber = latestAppointment
+      ? parseInt(latestAppointment.appointmentId.split("-")[1]) + 1
+      : 2045;
+
+    const appointmentId = `APT-${nextNumber}`;
 
     // Create the appointment
     const appointment = await prisma.appointment.create({
       data: {
+        appointmentId,
         donorId,
         date: new Date(date),
         time,
         location,
         status: "Confirmed",
       },
-    })
+    });
 
     // Create notification for the donor
     await prisma.notification.create({
       data: {
         userId: donorId,
         title: "Appointment Scheduled",
-        message: `Your appointment has been scheduled for ${new Date(date).toLocaleDateString()} at ${time} at ${location}.`,
-        type: "APPOINTMENT",
+        message: `Your appointment has been scheduled for ${new Date(
+          date
+        ).toLocaleDateString()} at ${time} at ${location}.`,
+        type: "Appointment", // Matches the schema comment: Appointment, Eligibility, Urgent, Achievement, System
       },
-    })
+    });
 
-    return NextResponse.json({ appointment })
+    return NextResponse.json({ appointment });
   } catch (error) {
-    console.error("Error creating appointment:", error)
-    return NextResponse.json({ error: "Failed to create appointment" }, { status: 500 })
+    console.error("Error creating appointment:", error);
+    return NextResponse.json(
+      { error: "Failed to create appointment" },
+      { status: 500 }
+    );
   }
 }

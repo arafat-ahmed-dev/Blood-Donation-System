@@ -1,12 +1,47 @@
-import { AuthForm } from "@/components/auth/auth-form"
+"use client";
+
+import { AuthForm } from "@/components/auth/auth-form";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function AuthPage() {
   return (
-    <div className="container py-12">
-      <div className="max-w-md mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-6">Account Access</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center py-10 px-4 bg-gradient-to-b from-white to-blood-50 dark:from-gray-950 dark:to-blood-950/30 bg-blood-pattern">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-center mb-8 flex flex-col items-center"
+        >
+          <div className="flex items-center justify-center mb-4">
+            <Image src="/logo.svg" height={32} width={32} alt="logo" />
+            <h1 className="text-3xl font-bold ml-2 blood-gradient-text">
+              LifeFlow
+            </h1>
+          </div>
+          <h2 className="text-2xl font-bold mb-2">Welcome</h2>
+          <p className="text-gray-500 dark:text-gray-400">
+            Join our blood donation community
+          </p>
+        </motion.div>
+
         <AuthForm />
-      </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="text-center mt-8 text-sm text-gray-500 dark:text-gray-400"
+        >
+          By continuing, you agree to our Terms of Service and Privacy Policy
+        </motion.div>
+      </motion.div>
     </div>
-  )
+  );
 }

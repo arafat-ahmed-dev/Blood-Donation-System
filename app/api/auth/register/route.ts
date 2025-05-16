@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { OtpService } from "@/lib/otp";
+import { sendOTPEmail } from "@/lib/email";
+import { authErrors } from "@/lib/api-error-handler";
+import Redis from "ioredis";
+import { encrypt } from "@/lib/data-encryption-utils";
+
+// Initialize Redis and OTP service
+const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+const otpService = new OtpService(redis);
 
 export async function POST(request: Request) {
   try {
@@ -43,10 +51,7 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already in use" },
-        { status: 400 }
-      );
+      return authErrors.emailInUse();
     }
 
     // Calculate age from dateOfBirth
@@ -76,15 +81,31 @@ export async function POST(request: Request) {
       },
     });
 
+    if (!user) {
+      return authErrors.serverError(
+        "Failed to create user. Please try again."
+      );
+    }
+    // Generate OTP using the service
+    const otp = await otpService.generateAndStoreOtp(email);
+
+    // Send email with OTP
+    try {
+      await sendOTPEmail(email, otp);
+    } catch (emailError) {
+      console.error("Failed to send OTP email:", emailError);
+      return authErrors.serverError(
+        "Failed to send verification email. Please try again."
+      );
+    }
+
+    // Create temp token and return success response
+    const tempToken = encrypt(email);
+
     return NextResponse.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        bloodType: user.bloodType,
-        isAdmin: user.isAdmin,
-        donorLevel: user.donorLevel,
-      },
+      tempToken,
+      message: "Registration successful. Verification code sent to email.",
+      success: true,
     });
   } catch (error) {
     console.error("Registration error:", error);

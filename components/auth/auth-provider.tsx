@@ -1,143 +1,211 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useState } from "react"
-import { useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { redirect, useRouter } from "next/navigation";
+import { useAuthErrorToast } from "@/lib/auth-errors";
 
-type User = {
-  id: string
-  name: string
-  email: string
-  bloodType: string
-  isAdmin: boolean
-  donorLevel?: string
-  totalDonations?: number
-  lastDonationDate?: Date
-  nextEligibleDate?: Date
-  image?: string
+// Define proper return types for functions
+
+interface AuthSuccess {
+  success: true;
+  tempToken: string;
+  message?: string;
 }
 
-type AuthContextType = {
-  user: User | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  sendOTP: (email: string) => Promise<{ success: boolean; message?: string }>
-  verifyOTP: (email: string, otp: string) => Promise<{ success: boolean; message?: string }>
-  register: (userData: any) => Promise<{ success: boolean; message?: string }>
-  logout: () => Promise<void>
+interface AuthError {
+  success: false;
+  error: string;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  sendOTP: async () => ({ success: false }),
-  verifyOTP: async () => ({ success: false }),
-  register: async () => ({ success: false }),
-  logout: async () => { },
-})
+type AuthResult = AuthSuccess | AuthError;
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession()
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+export function useAuth() {
+  const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { showAuthError, handleApiError } = useAuthErrorToast();
 
-  const sendOTP = async (email: string) => {
+  const sendOTP = async (email: string): Promise<AuthResult> => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const response = await fetch("/api/auth/generateOTP", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email }),
-      })
+      });
 
-      const data = await res.json()
-      return {
-        success: data.success,
-        message: data.message,
+      const data = await response.json();
+
+      // Log response for debugging
+      console.log("OTP Response:", {
+        status: response.status,
+        data: data,
+      });
+
+      if (!response.ok) {
+        // Extract error message from our standard API error format
+        const errorMessage =
+          data.error?.message || data.message || "Failed to send OTP";
+        console.error("API Error:", errorMessage);
+
+        // Map error to appropriate auth error type
+        let errorType = "default";
+        if (response.status === 404) errorType = "email";
+        if (data.error?.code === "user_not_found") errorType = "email";
+        if (data.error?.code === "rate_limit") errorType = "default";
+        if (data.error?.code === "validation_error") errorType = "email";
+
+        setError(errorMessage);
+        showAuthError(errorType as any, errorMessage);
+
+        return {
+          success: false,
+          error: errorMessage,
+        };
       }
-    } catch (error) {
-      console.error("Send OTP error:", error)
-      return { success: false, message: "An error occurred while sending OTP" }
-    }
-  }
-
-  const verifyOTP = async (email: string, otp: string) => {
-    try {
-      const res = await fetch("/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      })
-
-      const data = await res.json()
 
       return {
-        success: data.success,
+        success: true,
+        tempToken: data.tempToken,
         message: data.message,
-      }
-    } catch (error) {
-      console.error("Verify OTP error:", error)
-      return { success: false, message: "An error occurred during OTP verification" }
-    }
-  }
+      };
+    } catch (err) {
+      console.error("Send OTP error:", err);
 
-  const register = async (userData: any) => {
+      // Use general API error handler
+      handleApiError(err);
+
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (email: string, redirect?: string) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const res = await fetch("/api/auth/register", {
+      const result = await signIn("credentials", {
+        redirect: true,
+        email,
+        callbackUrl: redirect ?? "/",
+      });
+
+      if (result?.error) {
+        setError(result.error);
+        showAuthError("credentials", result.error);
+        return false;
+      }
+
+      return result;
+    } catch (err) {
+      const errorMessage = "An unexpected error occurred";
+      setError(errorMessage);
+      showAuthError("default", errorMessage);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const register = async (userData: any): Promise<AuthResult> => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(userData),
-      })
+      });
 
-      const data = await res.json()
+      const data = await response.json();
+
+      // Log response for debugging
+      console.log("Register Response:", {
+        status: response.status,
+        data: data,
+      });
+
+      if (!response.ok) {
+        // Extract error message from our standard API error format
+        const errorMessage =
+          data.error?.message || data.message || "Registration failed";
+        console.error("API Error:", errorMessage);
+
+        // Map to appropriate auth error type
+        let errorType = "registration";
+        if (data.error?.code === "email_in_use") errorType = "registration";
+        if (data.error?.code === "validation_error") errorType = "default";
+
+        setError(errorMessage);
+        showAuthError(errorType as any, errorMessage);
+
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
 
       return {
-        success: !data.error,
-        message: data.error || "Registration successful",
-      }
-    } catch (error) {
-      console.error("Registration error:", error)
-      return { success: false, message: "An error occurred during registration" }
+        success: true,
+        tempToken: data.tempToken,
+        message: data.message,
+      };
+    } catch (err) {
+      console.error("Registration error:", err);
+
+      // Use general API error handler
+      handleApiError(err);
+
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   const logout = async () => {
-    setLoading(true)
+    setIsLoading(true);
     try {
-      await signOut({ redirect: false })
-      router.push("/")
-      router.refresh()
-    } catch (error) {
-      console.error("Logout error:", error)
+      await signOut({ redirect: false });
+      router.push("/");
+    } catch (err) {
+      const errorMessage = "Logout failed";
+      setError(errorMessage);
+      showAuthError("default", errorMessage);
     } finally {
-      setLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // Map the session user to our User type
-  const user = session?.user
-    ? {
-      id: session.user.id as string,
-      name: session.user.name || "",
-      email: session.user.email || "",
-      bloodType: (session.user.bloodType as string) || "",
-      isAdmin: (session.user.isAdmin as boolean) || false,
-      image: session.user.image || undefined,
-    }
-    : null
-
-  const contextValue = {
-    user,
-    isAuthenticated: !!session,
-    isLoading: status === "loading" || loading,
-    sendOTP,
-    verifyOTP,
+  return {
+    user: session?.user,
+    isAuthenticated: !!session?.user,
+    isLoading: status === "loading" || isLoading,
+    error,
+    login,
     register,
     logout,
-  }
-
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+    sendOTP,
+  };
 }
-
-export const useAuth = () => useContext(AuthContext)

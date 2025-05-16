@@ -14,7 +14,7 @@ export type User = {
   zip: string
   bloodType: string
   dateOfBirth: string
-  lastDonation?: string
+  lastDonationDate?: string
   nextEligibleDate?: string
   donorLevel: "Bronze" | "Silver" | "Gold" | "Platinum"
   totalDonations: number
@@ -436,7 +436,7 @@ export const useStore = create<StoreState>()(
         if (user && donation.status === "Completed") {
           get().updateUser(user.id, {
             totalDonations: user.totalDonations + 1,
-            lastDonation: donation.date,
+            lastDonationDate: donation.date,
           })
 
           // Check and update achievements

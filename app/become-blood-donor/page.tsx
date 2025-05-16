@@ -180,7 +180,7 @@ const BecomeDonorPage = () => {
                     </Button>
                     <p className="mt-4 text-gray-600">
                         Already registered?{" "}
-                        <Link href="/auth/login" className="text-red-600 hover:underline">
+                        <Link href="/auth" className="text-red-600 hover:underline">
                             Login
                         </Link>{" "}
                         to manage your donor profile.
@@ -188,7 +188,7 @@ const BecomeDonorPage = () => {
                 </div>
             </div>
             {/* <Footer/> */}
-            <Footer/>
+            <Footer />
         </>
     );
 };

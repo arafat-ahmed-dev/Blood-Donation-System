@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "../auth/auth-provider"
 
 import Logo from "./Logo"
 import DesktopNav from "./DesktopNav"

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
+import { motion } from "framer-motion";
+import { AppLoader } from "@/components/ui/app-loader";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 export default function BloodBankLoading() {
   return (
@@ -13,7 +13,9 @@ export default function BloodBankLoading() {
         <div className="container">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h1 className="text-4xl font-extrabold mb-4">Blood Banks</h1>
-            <p className="text-lg text-muted-foreground">Find blood banks near you and check blood availability</p>
+            <p className="text-lg text-muted-foreground">
+              Find blood banks near you and check blood availability
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -48,11 +50,26 @@ export default function BloodBankLoading() {
           </div>
 
           <div className="flex justify-center mt-12">
-            <LoadingSpinner text="Loading blood banks..." />
+            <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AppLoader
+                  active={true}
+                  context="donation"
+                  size="lg"
+                  overlay={false}
+                  fullscreen={false}
+                  text="Loading Blood Bank Data"
+                />
+              </motion.div>
+            </div>
           </div>
         </div>
       </main>
       <Footer />
     </>
-  )
+  );
 }
