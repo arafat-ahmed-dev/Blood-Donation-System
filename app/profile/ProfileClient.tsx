@@ -7,6 +7,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useDonations } from "@/hooks/useDonations";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSession } from "next-auth/react";
 
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { ProfileStats } from "@/components/profile/ProfileStats";
@@ -18,37 +19,68 @@ import { ImpactSummary } from "@/components/profile/ImpactSummary";
 import { DonationHistory } from "@/components/profile/DonationHistory";
 import { AppointmentsList } from "@/components/profile/AppointmentsList";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
+import ProfileLoading from "./loading";
+
+interface Appointment {
+  id: string;
+  date: string;
+  time: string;
+  location: string;
+  status: string;
+}
 
 export default function ProfileClient() {
   const [activeTab, setActiveTab] = useState("overview");
+  const { data: session, status } = useSession();
   const { user, isLoading: profileLoading } = useProfile();
   const { donations, isLoading: donationsLoading } = useDonations(user?.id);
   const { appointments, isLoading: appointmentsLoading } = useAppointments(
     user?.id
   );
-  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
+  // Track which sections have been loaded
+  const [loadedSections, setLoadedSections] = useState({
+    overview: false,
+    donations: false,
+    appointments: false,
+    settings: false,
+  });
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (status === "unauthenticated") {
       router.push("/auth?redirect=/profile");
     }
-  }, [isAuthenticated, router]);
+  }, [status, router]);
 
-  if (profileLoading || !user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4 bg-background/50 p-8 rounded-xl backdrop-blur-sm">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-lg font-medium text-muted-foreground animate-pulse">
-            Loading your profile...
-          </p>
-          <p className="text-sm text-muted-foreground/80">
-            Please wait while we fetch your information
-          </p>
-        </div>
-      </div>
-    );
+  // Mark sections as loaded when their data is ready
+  useEffect(() => {
+    if (user && !profileLoading) {
+      setLoadedSections((prev) => ({ ...prev, overview: true }));
+    }
+  }, [user, profileLoading]);
+
+  useEffect(() => {
+    if (donations && !donationsLoading) {
+      setLoadedSections((prev) => ({ ...prev, donations: true }));
+    }
+  }, [donations, donationsLoading]);
+
+  useEffect(() => {
+    if (appointments && !appointmentsLoading) {
+      setLoadedSections((prev) => ({ ...prev, appointments: true }));
+    }
+  }, [appointments, appointmentsLoading]);
+
+  // Show loading state for initial load or when switching to unloaded sections
+  if (
+    status === "loading" ||
+    profileLoading ||
+    !user ||
+    (activeTab === "donations" && !loadedSections.donations) ||
+    (activeTab === "appointments" && !loadedSections.appointments)
+  ) {
+    return <ProfileLoading />;
   }
 
   const fullName = `${user?.name}`;
@@ -58,14 +90,29 @@ export default function ProfileClient() {
     .join("");
   const bloodGroup = user?.bloodType;
   const donationCount = donations?.length || 0;
-  const nextAppointment = appointments?.find(
-    (a: any) => a.status === "Confirmed"
+
+  // Find the next upcoming appointment
+  const nextAppointment = appointments?.reduce(
+    (next: Appointment | null, current: Appointment) => {
+      if (current.status !== "Confirmed") return next;
+
+      const currentDate = new Date(current.date);
+      const nextDate = next ? new Date(next.date) : null;
+
+      if (!nextDate || currentDate < nextDate) {
+        return current;
+      }
+      return next;
+    },
+    null
   );
+
   const eligibilityStatus = !user?.nextEligibleDate
     ? "Available"
     : new Date(user.nextEligibleDate) > new Date()
     ? "Not Available"
     : "Available";
+
   return (
     <div className="flex flex-col md:flex-row gap-4 p-2 animate-in fade-in duration-500">
       {/* Sidebar */}
@@ -109,13 +156,14 @@ export default function ProfileClient() {
                   <UpcomingAppointment
                     nextAppointment={nextAppointment}
                     setActiveTab={setActiveTab}
+                    isLoading={appointmentsLoading}
                   />
                 </div>
               </div>
               <div className="bg-background p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group cursor-pointer">
                 <div className="group-hover:scale-[1.02] transition-transform duration-300">
                   <RecentDonations
-                    donations={donations}
+                    donations={donations?.slice(0, 5)}
                     setActiveTab={setActiveTab}
                   />
                 </div>

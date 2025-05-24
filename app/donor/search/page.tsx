@@ -1,91 +1,97 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import DonorSearchClient from "./DonorSearchClient"
-import { ITEM_PER_PAGE } from "@/lib/constants"
-import prisma from "@/lib/prisma"
-import Pagination from "@/components/layout/Pagination"
-import { type Prisma } from "@prisma/client"
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import DonorSearchClient from "./DonorSearchClient";
+import { ITEM_PER_PAGE } from "@/lib/constants";
+import prisma from "@/lib/prisma";
+import Pagination from "@/components/layout/Pagination";
+import { type Prisma } from "@prisma/client";
 
 export default async function DonorSearchPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: { [key: string]: string | undefined };
 }) {
-  const { page, ...queryParams } = searchParams
-  const p = page ? Number.parseInt(page) : 1
+  // Ensure searchParams is properly awaited
+  const params = await Promise.resolve(searchParams);
+  const { page, ...queryParams } = params;
+  const p = page ? Number.parseInt(page) : 1;
 
-  const query: Prisma.DonorWhereInput = {}
+  const query: Prisma.DonorWhereInput = {};
 
-  for (const [key, value] of Object.entries(queryParams)) {
+  // Process query parameters
+  Object.entries(queryParams).forEach(([key, value]) => {
     if (value !== undefined) {
       switch (key) {
         case "bloodType":
-          query.bloodType = value
-          break
+          query.bloodType = value;
+          break;
         case "city":
-          query.city = value
-          break
+          query.city = value;
+          break;
         case "upazila":
-          query.upazila = value
-          break
+          query.upazila = value;
+          break;
         default:
-          break
+          break;
       }
     }
-  }
+  });
 
-  const [data, count] = await prisma.$transaction([
-    prisma.donor.findMany({
-      where: query,
-      select: {
-        id: true,
-        name: true,
-        bloodType: true,
-        city: true,
-        upazila: true,
-        address: true,
-        nextEligibleDate: true,
-        totalDonations: true,
-        donations: {
-          select: {
-            id: true,
-          },
+  // Perform queries separately instead of in a transaction
+  const data = await prisma.donor.findMany({
+    where: query,
+    select: {
+      id: true,
+      name: true,
+      bloodType: true,
+      city: true,
+      upazila: true,
+      address: true,
+      nextEligibleDate: true,
+      totalDonations: true,
+      donations: {
+        select: {
+          id: true,
         },
       },
-      take: ITEM_PER_PAGE,
-      orderBy: {
-        nextEligibleDate: "asc",
-      },
-      skip: (p - 1) * ITEM_PER_PAGE,
-    }),
-    prisma.donor.count({ where: query }),
-  ])
-  
+    },
+    take: ITEM_PER_PAGE,
+    orderBy: {
+      nextEligibleDate: "asc",
+    },
+    skip: (p - 1) * ITEM_PER_PAGE,
+  });
+
+  const count = await prisma.donor.count({ where: query });
 
   const donors = data.map((donor) => {
     const formattedDate = donor.nextEligibleDate
       ? new Date(donor.nextEligibleDate).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-      })
-      : null
+          day: "numeric",
+          month: "long",
+        })
+      : null;
 
     const location = {
       address: donor.address || "",
       city: donor.city || "",
       upazila: donor.upazila || "",
-    }
-    
+    };
+
     return {
       id: donor.id,
       name: donor.name,
       bloodType: donor.bloodType,
       location,
-      nextEligibleDate: formattedDate ? `Eligible after ${formattedDate}` : "Available now",
+      nextEligibleDate: formattedDate
+        ? `Eligible after ${formattedDate}`
+        : "Available now",
       donationCount: donor.totalDonations,
-      available: donor.nextEligibleDate ? new Date() >= new Date(donor.nextEligibleDate) : true,
-    }
-  })
+      available: donor.nextEligibleDate
+        ? new Date() >= new Date(donor.nextEligibleDate)
+        : true,
+    };
+  });
 
   return (
     <>
@@ -95,7 +101,8 @@ export default async function DonorSearchPage({
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h1 className="text-4xl font-extrabold mb-4">Find Blood Donors</h1>
             <p className="text-lg text-muted-foreground">
-              Search for potential blood donors based on blood group, location, and availability.
+              Search for potential blood donors based on blood group, location,
+              and availability.
             </p>
           </div>
 
@@ -105,5 +112,5 @@ export default async function DonorSearchPage({
       <Pagination page={p} count={count} />
       <Footer />
     </>
-  )
+  );
 }

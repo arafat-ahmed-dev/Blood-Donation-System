@@ -1,5 +1,3 @@
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/home/HeroSection"
 import { SearchSection } from "@/components/home/SearchSection"
 import { UrgentNeedsSection } from "@/components/home/UrgentNeedsSection"
@@ -8,11 +6,11 @@ import { BloodBanksSection } from "@/components/home/BloodBanksSection"
 import { ResourcesSection } from "@/components/home/ResourcesSection"
 import { ImpactStatsSection } from "@/components/home/ImpactStatsSection"
 import { CTASection } from "@/components/home/CTASection"
+import ClientLayout from "@/components/layout/clientLayout"
 
 export default function Home() {
   return (
-    <>
-      <Header />
+    <ClientLayout>
       <main>
         <HeroSection />
         <SearchSection />
@@ -23,7 +21,6 @@ export default function Home() {
         <ImpactStatsSection />
         <CTASection />
       </main>
-      <Footer />
-    </>
+    </ClientLayout>
   )
 }

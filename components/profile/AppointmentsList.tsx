@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -173,7 +172,7 @@ export function AppointmentsList({
         ) : (
           <div className="text-center py-8">
             <Image
-              src="/images/empty-appointments.png"
+              src="/images/empty-appointments.svg"
               alt="No appointments"
               width={80}
               height={80}

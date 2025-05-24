@@ -31,6 +31,7 @@ interface AppLoaderProps {
   onTimeout?: () => void;
   dismissible?: boolean;
   onDismiss?: () => void;
+  showProgress?: boolean;
 }
 
 export function AppLoader({
@@ -45,6 +46,7 @@ export function AppLoader({
   onTimeout,
   dismissible = false,
   onDismiss,
+  showProgress = false,
 }: AppLoaderProps) {
   const [visible, setVisible] = useState(active);
   const [timeoutReached, setTimeoutReached] = useState(false);
@@ -177,7 +179,7 @@ export function AppLoader({
               size={size}
               text={displayText}
               secondaryText={secondaryText}
-              showProgress={variant !== "wave"}
+              showProgress={showProgress}
             />
           )}
         </motion.div>

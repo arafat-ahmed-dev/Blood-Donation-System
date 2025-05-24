@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { BookOpen, FileText, Play, Award } from "lucide-react"
-
+import ClientLayout from "@/components/layout/clientLayout"
 export default function BloodEducationPage() {
   const educationalResources = [
     {
@@ -97,9 +97,10 @@ export default function BloodEducationPage() {
   ]
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl font-bold">Blood Education</h1>
+    <ClientLayout>
+      <div className="container py-8">
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-3xl font-bold">Blood Education</h1>
         <p className="text-muted-foreground">Learn about blood donation, types, and the importance of giving blood</p>
       </div>
 
@@ -235,5 +236,6 @@ export default function BloodEducationPage() {
         </div>
       </div>
     </div>
+    </ClientLayout>
   )
 }

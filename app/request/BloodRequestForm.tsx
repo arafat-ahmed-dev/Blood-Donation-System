@@ -1,22 +1,70 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { Info, AlertCircle } from "lucide-react"
+"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Info, AlertCircle } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { BLOOD_GROUPS } from "@/lib/constants"
-import { locationList } from "@/lib/data"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { BLOOD_GROUPS } from "@/lib/constants";
+import { locationList } from "@/lib/data";
+import { useEffect, useState } from "react";
 
 export const metadata: Metadata = {
   title: "Request Blood",
-  description: "Request blood donation from voluntary donors in Bangladesh."
-}
+  description: "Request blood donation from voluntary donors in Bangladesh.",
+};
 
 export default function RequestBloodPage() {
+  const [filterInputs, setFilterInputs] = useState({
+    bloodType: "any",
+    city: "any",
+    upazila: "any",
+    unitsNeeded: "any",
+  });
+  console.log(filterInputs);
+  const [availableUpazilas, setAvailableUpazilas] = useState<string[]>([]);
+  useEffect(() => {
+    if (filterInputs.bloodType !== "any") {
+      const bloodTypeData = BLOOD_GROUPS.find(
+        (group) => group === filterInputs.bloodType
+      );
+      if (bloodTypeData) {
+        setFilterInputs((prev) => ({ ...prev, bloodType: bloodTypeData }));
+      }
+    }
+    if (filterInputs.city !== "any") {
+      const cityData = locationList.find(
+        (loc) => loc.city === filterInputs.city
+      );
+      setAvailableUpazilas(cityData?.upazilas || []);
+      if (
+        filterInputs.upazila !== "any" &&
+        !cityData?.upazilas.includes(filterInputs.upazila)
+      ) {
+        setFilterInputs((prev) => ({ ...prev, upazila: "any" }));
+      }
+    } else {
+      setAvailableUpazilas([]);
+      setFilterInputs((prev) => ({ ...prev, upazila: "any" }));
+    }
+  }, [filterInputs.city, filterInputs.upazila]);
   return (
     <>
       <main className="py-16">
@@ -24,9 +72,12 @@ export default function RequestBloodPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Request Blood Donation</h1>
+                <h1 className="text-3xl font-bold mb-2">
+                  Request Blood Donation
+                </h1>
                 <p className="text-muted-foreground">
-                  Fill out the form below to request blood donation. Your request will be shared with potential donors in your area.
+                  Fill out the form below to request blood donation. Your
+                  request will be shared with potential donors in your area.
                 </p>
               </div>
 
@@ -41,9 +92,16 @@ export default function RequestBloodPage() {
                   <div className="bg-primary/5 p-4 rounded-lg border border-primary/10 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
-                      <p className="font-medium mb-1">Emergency Request Process</p>
+                      <p className="font-medium mb-1">
+                        Emergency Request Process
+                      </p>
                       <p className="text-muted-foreground">
-                        For faster results, after submitting this form, call our hotline at <span className="font-medium text-foreground">+880 1712-345678</span> to expedite your request.
+                        For faster results, after submitting this form, call our
+                        hotline at{" "}
+                        <span className="font-medium text-foreground">
+                          +880 1712-345678
+                        </span>{" "}
+                        to expedite your request.
                       </p>
                     </div>
                   </div>
@@ -57,19 +115,35 @@ export default function RequestBloodPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="patientAge">Patient Age</Label>
-                        <Input id="patientAge" type="number" placeholder="Age in years" />
+                        <Input
+                          id="patientAge"
+                          type="number"
+                          placeholder="Age in years"
+                        />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="bloodGroup">Required Blood Group</Label>
-                        <Select>
+                        <Select
+                          value={filterInputs.bloodType}
+                          onValueChange={(value: string) =>
+                            setFilterInputs((prev) => ({
+                              ...prev,
+                              bloodType: value,
+                            }))
+                          }
+                        >
                           <SelectTrigger id="bloodGroup">
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder="Select blood group">
+                              {filterInputs.bloodType === "any"
+                                ? "Any"
+                                : filterInputs.bloodType}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {BLOOD_GROUPS.map(group => (
+                            {BLOOD_GROUPS.map((group) => (
                               <SelectItem key={group} value={group}>
                                 {group}
                               </SelectItem>
@@ -79,9 +153,21 @@ export default function RequestBloodPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="unitsNeeded">Units Needed</Label>
-                        <Select>
+                        <Select
+                          value={filterInputs.unitsNeeded}
+                          onValueChange={(value: string) =>
+                            setFilterInputs((prev) => ({
+                              ...prev,
+                              unitsNeeded: value,
+                            }))
+                          }
+                        >
                           <SelectTrigger id="unitsNeeded">
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder="Select units needed">
+                              {filterInputs.unitsNeeded === "any"
+                                ? "Any"
+                                : filterInputs.unitsNeeded}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="1">1 Bag</SelectItem>
@@ -98,10 +184,15 @@ export default function RequestBloodPage() {
                   <Separator />
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Hospital Information</h3>
+                    <h3 className="text-lg font-medium">
+                      Hospital Information
+                    </h3>
                     <div className="space-y-2">
                       <Label htmlFor="hospitalName">Hospital Name</Label>
-                      <Input id="hospitalName" placeholder="Full hospital name" />
+                      <Input
+                        id="hospitalName"
+                        placeholder="Full hospital name"
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -113,20 +204,28 @@ export default function RequestBloodPage() {
                       <div className="space-y-2">
                         <Label htmlFor="city">City</Label>
                         <Select
-                        // value={filterInputs.city}
-                        // onValueChange={(value: string) =>
-                        //   setFilterInputs(prev => ({ ...prev, city: value }))
-                        // }
+                          value={filterInputs.city}
+                          onValueChange={(value: string) =>
+                            setFilterInputs((prev) => ({
+                              ...prev,
+                              city: value,
+                            }))
+                          }
                         >
                           <SelectTrigger id="city">
                             <SelectValue placeholder="Select city">
-                              {/* {filterInputs.city === "any" ? "Any" : filterInputs.city} */}
+                              {filterInputs.city === "any"
+                                ? "Any"
+                                : filterInputs.city}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="any">Any</SelectItem>
-                            {locationList.map(location => (
-                              <SelectItem key={location.city} value={location.city}>
+                            {locationList.map((location) => (
+                              <SelectItem
+                                key={location.city}
+                                value={location.city}
+                              >
                                 {location.city}
                               </SelectItem>
                             ))}
@@ -136,31 +235,38 @@ export default function RequestBloodPage() {
                       <div className="space-y-2">
                         <Label htmlFor="upazila">Upazila</Label>
                         <Select
-                        // value={filterInputs.upazila}
-                        // onValueChange={(value: string) =>
-                        //   setFilterInputs(prev => ({ ...prev, upazila: value }))
-                        // }
-                        // disabled={filterInputs.city === "any"}
+                          value={filterInputs.upazila}
+                          onValueChange={(value: string) =>
+                            setFilterInputs((prev) => ({
+                              ...prev,
+                              upazila: value,
+                            }))
+                          }
+                          disabled={filterInputs.city === "any"}
                         >
                           <SelectTrigger id="upazila">
                             <SelectValue placeholder="Select upazila">
-                              {/* {filterInputs.upazila === "any" ? "Any" : filterInputs.upazila} */}
+                              {filterInputs.upazila === "any"
+                                ? "Any"
+                                : filterInputs.upazila}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="any">Any</SelectItem>
-                            {/* {availableUpazilas.map(upazila => (
+                            {availableUpazilas.map((upazila) => (
                               <SelectItem key={upazila} value={upazila}>
                                 {upazila}
                               </SelectItem>
-                            ))} */}
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="bloodRequiredBy">When is blood needed?</Label>
+                      <Label htmlFor="bloodRequiredBy">
+                        When is blood needed?
+                      </Label>
                       <Input id="bloodRequiredBy" type="date" />
                     </div>
 
@@ -199,8 +305,13 @@ export default function RequestBloodPage() {
                         <Input id="contactName" placeholder="Full name" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="relationship">Relationship to Patient</Label>
-                        <Input id="relationship" placeholder="e.g. Family member, Friend" />
+                        <Label htmlFor="relationship">
+                          Relationship to Patient
+                        </Label>
+                        <Input
+                          id="relationship"
+                          placeholder="e.g. Family member, Friend"
+                        />
                       </div>
                     </div>
 
@@ -220,7 +331,9 @@ export default function RequestBloodPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="alternatePhone">Alternate Phone (Optional)</Label>
+                      <Label htmlFor="alternatePhone">
+                        Alternate Phone (Optional)
+                      </Label>
                       <div className="flex">
                         <div className="inline-flex h-10 items-center justify-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
                           +880
@@ -235,7 +348,9 @@ export default function RequestBloodPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+                      <Label htmlFor="additionalInfo">
+                        Additional Information (Optional)
+                      </Label>
                       <textarea
                         id="additionalInfo"
                         rows={3}
@@ -252,12 +367,18 @@ export default function RequestBloodPage() {
                       id="publicInfo"
                       className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
-                    <label htmlFor="publicInfo" className="text-sm text-muted-foreground">
-                      I understand that this information will be visible to registered donors
+                    <label
+                      htmlFor="publicInfo"
+                      className="text-sm text-muted-foreground"
+                    >
+                      I understand that this information will be visible to
+                      registered donors
                     </label>
                   </div>
 
-                  <Button className="w-full" size="lg">Submit Blood Request</Button>
+                  <Button className="w-full" size="lg">
+                    Submit Blood Request
+                  </Button>
                 </CardFooter>
               </Card>
             </div>
@@ -274,9 +395,14 @@ export default function RequestBloodPage() {
                   <div className="space-y-2">
                     <h3 className="font-medium">Blood Group Compatibility</h3>
                     <p className="text-sm text-muted-foreground">
-                      Remember that some blood groups are compatible with others. If you're not finding exact matches, you might be able to use compatible blood types.
+                      Remember that some blood groups are compatible with
+                      others. If you're not finding exact matches, you might be
+                      able to use compatible blood types.
                     </p>
-                    <Link href="/blood-groups" className="text-sm text-primary hover:underline">
+                    <Link
+                      href="/blood-groups"
+                      className="text-sm text-primary hover:underline"
+                    >
                       View blood group compatibility chart
                     </Link>
                   </div>
@@ -300,7 +426,9 @@ export default function RequestBloodPage() {
                       </li>
                       <li className="flex gap-2">
                         <span className="text-primary font-medium">•</span>
-                        <span>Consider contacting nearby blood banks as well</span>
+                        <span>
+                          Consider contacting nearby blood banks as well
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -310,11 +438,16 @@ export default function RequestBloodPage() {
                   <div className="space-y-2">
                     <h3 className="font-medium">Need Help?</h3>
                     <p className="text-sm text-muted-foreground">
-                      If you're facing an emergency or need assistance with your request, call our 24/7 helpline.
+                      If you're facing an emergency or need assistance with your
+                      request, call our 24/7 helpline.
                     </p>
                     <div className="bg-primary/10 p-3 rounded-md text-center">
-                      <p className="text-sm font-medium">Rokto Shetu Helpline</p>
-                      <p className="text-lg font-bold text-primary">+880 1712-345678</p>
+                      <p className="text-sm font-medium">
+                        Rokto Shetu Helpline
+                      </p>
+                      <p className="text-lg font-bold text-primary">
+                        +880 1712-345678
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -324,5 +457,5 @@ export default function RequestBloodPage() {
         </div>
       </main>
     </>
-  )
+  );
 }

@@ -2,13 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import ClientLayout from "@/components/layout/clientLayout";
 
 const BecomeDonorPage = () => {
     return (
-        <>
-            <Header />
+        <ClientLayout>
             <div className="container mx-auto px-4 py-16 max-w-5xl">
                 <div className="text-center mb-12">
                     <h1 className="text-3xl md:text-4xl font-bold text-red-600 mb-4">
@@ -187,9 +185,7 @@ const BecomeDonorPage = () => {
                     </p>
                 </div>
             </div>
-            {/* <Footer/> */}
-            <Footer />
-        </>
+        </ClientLayout>
     );
 };
 

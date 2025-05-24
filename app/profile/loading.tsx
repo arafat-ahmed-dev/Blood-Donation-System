@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/footer";
 export default function ProfileLoading() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="py-16 bg-gray-50 min-h-[70vh]">
         <div className="container max-w-5xl">
           <div className="flex flex-col items-center justify-center">
@@ -42,7 +42,7 @@ export default function ProfileLoading() {
             </div>
           </div>
 
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-center mt-12 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <AppLoader
               active={true}
               context="profile"
@@ -53,7 +53,7 @@ export default function ProfileLoading() {
           </div>
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

@@ -1,10 +1,43 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} from "@google/generative-ai";
 
-// Initialize the Gemini API client
-export const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
+// Initialize the Gemini API client with safety settings
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-// Get a specific model
-const model = gemini.getGenerativeModel({ model: "gemini-pro" })
+// Configure safety settings
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
+
+// Get the model with safety settings
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.0-pro",
+  safetySettings,
+  generationConfig: {
+    temperature: 0.7,
+    topK: 40,
+    topP: 0.95,
+    maxOutputTokens: 2048,
+  },
+});
 
 /**
  * Generate insights from analytics data using Gemini AI
@@ -34,48 +67,51 @@ export async function generateInsights(analyticsData: any) {
           {"title": "Trend Title", "description": "Detailed explanation", "confidence": "High/Medium/Low"}
         ]
       }
-    `
+    `;
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     // Extract JSON from the response
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/)
+    const jsonMatch =
+      text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/);
 
     if (jsonMatch && jsonMatch[1]) {
-      return JSON.parse(jsonMatch[1])
+      return JSON.parse(jsonMatch[1]);
     } else {
       try {
-        return JSON.parse(text)
+        return JSON.parse(text);
       } catch (e) {
-        console.error("Failed to parse Gemini response as JSON:", e)
+        console.error("Failed to parse Gemini response as JSON:", e);
         return {
           insights: [
             {
               title: "Data Analysis Complete",
-              description: "The system has analyzed your blood donation data. Check the dashboard for visualizations.",
+              description:
+                "The system has analyzed your blood donation data. Check the dashboard for visualizations.",
               category: "System",
             },
           ],
           recommendations: [],
           predictedTrends: [],
-        }
+        };
       }
     }
   } catch (error) {
-    console.error("Error generating insights with Gemini:", error)
+    console.error("Error generating insights with Gemini:", error);
     return {
       insights: [
         {
           title: "Analysis Error",
-          description: "There was an error analyzing your data. Please try again later.",
+          description:
+            "There was an error analyzing your data. Please try again later.",
           category: "Error",
         },
       ],
       recommendations: [],
       predictedTrends: [],
-    }
+    };
   }
 }
 
@@ -114,22 +150,23 @@ export async function predictFutureDonationNeeds(historicalData: any) {
         "seasonalFactors": ["Factor 1", "Factor 2", "Factor 3"],
         "confidenceLevel": "High/Medium/Low"
       }
-    `
+    `;
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = response.text()
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
     // Extract JSON from the response
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/)
+    const jsonMatch =
+      text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/);
 
     if (jsonMatch && jsonMatch[1]) {
-      return JSON.parse(jsonMatch[1])
+      return JSON.parse(jsonMatch[1]);
     } else {
       try {
-        return JSON.parse(text)
+        return JSON.parse(text);
       } catch (e) {
-        console.error("Failed to parse Gemini response as JSON:", e)
+        console.error("Failed to parse Gemini response as JSON:", e);
         return {
           predictions: [
             {
@@ -150,11 +187,11 @@ export async function predictFutureDonationNeeds(historicalData: any) {
           ],
           seasonalFactors: ["Based on historical data"],
           confidenceLevel: "Low",
-        }
+        };
       }
     }
   } catch (error) {
-    console.error("Error generating predictions with Gemini:", error)
+    console.error("Error generating predictions with Gemini:", error);
     return {
       predictions: [
         {
@@ -166,7 +203,7 @@ export async function predictFutureDonationNeeds(historicalData: any) {
       ],
       seasonalFactors: ["Error in prediction"],
       confidenceLevel: "Low",
-    }
+    };
   }
 }
 
@@ -189,13 +226,13 @@ export async function generateSupportResponse(ticketData: any) {
       If this is a general question about blood donation, provide accurate information.
       
       Format your response as plain text.
-    `
+    `;
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    return response.text()
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
   } catch (error) {
-    console.error("Error generating support response with Gemini:", error)
-    return "I apologize, but I'm unable to process your request at the moment. A support team member will respond to your ticket as soon as possible. Thank you for your patience."
+    console.error("Error generating support response with Gemini:", error);
+    return "I apologize, but I'm unable to process your request at the moment. A support team member will respond to your ticket as soon as possible. Thank you for your patience.";
   }
 }

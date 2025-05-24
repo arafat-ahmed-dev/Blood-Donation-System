@@ -2,16 +2,15 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log("user-----------< Start")
     const user = await prisma.donor.findUnique({
       where: {
         id: session.user.id,
@@ -31,7 +30,7 @@ export async function GET() {
         image: true,
       },
     });
-
+    console.log("user-----------<",user)
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

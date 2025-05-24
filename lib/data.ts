@@ -28,3 +28,6 @@ export const locationList = [
     upazilas: ["Rangpur Sadar", "Badarganj", "Kaunia", "Gangachara", "Mithapukur"],
   },
 ]
+
+
+

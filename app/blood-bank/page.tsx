@@ -3,6 +3,7 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Droplet, Users, TrendingUp, AlertCircle } from "lucide-react"
+import ClientLayout from "@/components/layout/clientLayout"
 
 export default function BloodBankPage() {
   const bloodTypes = [
@@ -36,9 +37,10 @@ export default function BloodBankPage() {
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl font-bold">Blood Bank Inventory</h1>
+    <ClientLayout>
+      <div className="container py-8">
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-3xl font-bold">Blood Bank Inventory</h1>
         <p className="text-muted-foreground">Current blood supply levels and donation statistics</p>
       </div>
 
@@ -167,5 +169,6 @@ export default function BloodBankPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </ClientLayout>
   )
 }

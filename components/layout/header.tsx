@@ -17,13 +17,12 @@ export function Header() {
   const { user, isAuthenticated } = useAuth()
   const [notificationCount, setNotificationCount] = useState(3)
   const initials = user?.name.split(' ').map(n => n[0]).join('');
-
   const userInfo = {
     name: user?.name ?? undefined,
     image: user?.image ?? undefined,
     initials: initials,         // or user?.initials if available
     bloodType: user?.bloodType,        // or user?.bloodType if available
-    isAdmin: user?.isAdmin,          // or user?.isAdmin if available
+    isAdmin: user?.isAdmin || false,          // or user?.isAdmin if available
   };
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -40,7 +39,7 @@ export function Header() {
         </div>
 
         <DesktopNav />
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           {isAuthenticated ? (
             <UserMenu user={userInfo} notificationCount={notificationCount} />
           ) : (
@@ -54,7 +53,6 @@ export function Header() {
         onClose={() => setIsMobileMenuOpen(false)}
         isAuthenticated={isAuthenticated}
         user={userInfo}
-      // notificationCount={notificationCount}
       />
     </header>
   )

@@ -43,7 +43,6 @@ export default function DonorSearchClient({ donors }: { donors: Donor[] }) {
 
   const [availableUpazilas, setAvailableUpazilas] = useState<string[]>([]);
 
-  console.log(donors);
 
   const [isLoading, setIsLoading] = useState(false);
 

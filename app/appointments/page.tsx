@@ -1,7 +1,9 @@
 import { AppointmentForm } from "@/components/appointments/appointment-form"
+import ClientLayout from "@/components/layout/clientLayout"
 
 export default function AppointmentsPage() {
   return (
+    <ClientLayout>
     <div className="container py-8">
       <div className="max-w-3xl mx-auto">
         <div className="flex flex-col gap-2 mb-8">
@@ -9,8 +11,9 @@ export default function AppointmentsPage() {
           <p className="text-muted-foreground">Book your next blood donation appointment</p>
         </div>
 
-        <AppointmentForm />
+          <AppointmentForm />
+        </div>
       </div>
-    </div>
+    </ClientLayout>
   )
 }

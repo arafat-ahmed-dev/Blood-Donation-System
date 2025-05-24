@@ -1,185 +1,178 @@
 # LifeFlow - Blood Donation Management System
 
-LifeFlow is a comprehensive blood donation management system designed to connect blood donors with those in need. The platform facilitates blood donation appointments, manages inventory, tracks donor eligibility, and provides real-time analytics.
+LifeFlow is a modern, scalable blood donation management system built with Next.js 15, TypeScript, and MongoDB. The system helps manage blood donations, track inventory, and connect donors with hospitals efficiently.
 
-![LifeFlow Banner](/placeholder.svg?height=300&width=800)
+## 🚀 Features
 
----
+- **User Authentication & Authorization**
 
-## 🌟 Features
+  - Secure login/signup with NextAuth.js
+  - Role-based access control (Donors, Hospitals, Admins)
+  - Profile management
 
-- **🌍 Multi-language Support**: Full support for English and Bengali.
-- **🔒 OTP-based Authentication**: Secure authentication using email OTP.
-- **🔗 Social Login**: Google authentication integration.
-- **🩸 Donor Management**: Track donor profiles, donation history, and eligibility.
-- **📅 Appointment Scheduling**: Schedule and manage blood donation appointments.
-- **📦 Blood Inventory Management**: Track blood inventory across donation centers.
-- **⚡ Urgent Blood Requests**: Process and fulfill urgent blood requests.
-- **📊 Analytics Dashboard**: Visualize donation trends and inventory status.
-- **🛠️ Admin Dashboard**: Comprehensive tools for system administrators.
-- **📱 Responsive Design**: Works on desktop, tablet, and mobile devices.
+- **Donor Management**
 
----
+  - Donor registration and profiles
+  - Donation history tracking
+  - Health records management
+  - Donation eligibility tracking
+
+- **Blood Inventory Management**
+
+  - Real-time blood inventory tracking
+  - Blood type availability monitoring
+  - Inventory status alerts (Adequate, Low, Critical)
+
+- **Appointment System**
+
+  - Online appointment scheduling
+  - Multiple donation center support
+  - Wait time tracking
+  - Appointment reminders
+
+- **Hospital Integration**
+
+  - Hospital registration and verification
+  - Blood request management
+  - Usage tracking
+  - Emergency request handling
+
+- **Support System**
+  - Ticket-based support system
+  - Real-time messaging
+  - Priority-based ticket handling
+  - Support history tracking
+
+## 🛠️ Tech Stack
+
+- **Frontend**
+
+  - Next.js 15
+  - TypeScript
+  - Tailwind CSS
+  - Framer Motion
+  - Radix UI Components
+  - React Hook Form
+  - Zod Validation
+
+- **Backend**
+
+  - Next.js API Routes
+  - Prisma ORM
+  - MongoDB
+  - NextAuth.js
+  - Redis (Caching)
+
+- **Development Tools**
+  - TypeScript
+  - ESLint
+  - Prettier
+  - PNPM Package Manager
+
+## 📋 Prerequisites
+
+- Node.js 18.x or later
+- PNPM 8.x or later
+- MongoDB 6.x or later
+- Redis (optional, for caching)
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- **Node.js**: Version 18.x or higher.
-- **MongoDB**: Database for storing application data.
-- **Redis**: For OTP storage.
-- **SMTP Server**: For email notifications.
-
-### Installation
-
-1. **Clone the repository**:
+1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/lifeflow.git
-   cd lifeflow
+   git clone https://github.com/yourusername/blood-donation-system.git
+   cd blood-donation-system
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
-3. **Set up environment variables**:
+3. **Set up environment variables**
+   Create a `.env` file in the root directory with the following variables:
+
+   ```env
+   DATABASE_URL="mongodb://localhost:27017/blood-donation"
+   NEXTAUTH_SECRET="your-secret-key"
+   NEXTAUTH_URL="http://localhost:3000"
+   REDIS_URL="redis://localhost:6379"
+   ```
+
+4. **Set up the database**
 
    ```bash
-   cp .env.example .env.local
+   pnpm prisma generate
+   pnpm prisma db push
+   pnpm prisma db seed
    ```
 
-   Update `.env.local` with your configuration values.
-
-4. **Set up the database**:
+5. **Run the development server**
 
    ```bash
-   npx prisma generate
-   npx prisma db push
+   pnpm dev
    ```
 
-5. **Seed the database**:
-
+6. **Build for production**
    ```bash
-   npm run seed
+   pnpm build
+   pnpm start
    ```
 
-6. **Start the development server**:
+## 📁 Project Structure
 
-   ```bash
-   npm run dev
-   ```
-
-7. **Access the application**:
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 🛠️ Environment Variables
-
-Create a `.env.local` file in the root directory with the following variables:
-
-```plaintext
-# Database Configuration
-DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/lifeflow?retryWrites=true&w=majority"
-
-# Redis Configuration (for OTP)
-REDIS_URL="redis://username:password@host:port"
-
-# Authentication
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-nextauth-secret-key"
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# Email (SMTP)
-SMTP_HOST="smtp.example.com"
-SMTP_PORT="587"
-SMTP_SECURE="false"
-SMTP_USER="your-email@example.com"
-SMTP_PASSWORD="your-email-password"
-
-# AI Integration
-GEMINI_API_KEY="your-gemini-api-key"
-
-# Application Settings
-NODE_ENV="development" # Change to "production" for production deployment
+```
+├── app/                 # Next.js app directory
+├── components/         # Reusable UI components
+├── lib/               # Utility functions and configurations
+├── prisma/            # Database schema and migrations
+├── public/            # Static assets
+├── styles/            # Global styles
+└── types/             # TypeScript type definitions
 ```
 
----
+## 🔒 Security Features
 
-## 📂 Project Structure
+- Password hashing with bcrypt
+- JWT-based authentication
+- Rate limiting
+- Input validation with Zod
+- CORS protection
+- XSS protection
 
-```plaintext
-lifeflow/
-├── app/                  # Next.js app directory
-│   ├── api/              # API routes
-│   ├── admin/            # Admin dashboard pages
-│   ├── auth/             # Authentication pages
-│   ├── profile/          # User profile pages
-│   └── ...               # Other pages
-├── components/           # React components
-│   ├── admin/            # Admin components
-│   ├── auth/             # Authentication components
-│   ├── layout/           # Layout components
-│   ├── ui/               # UI components
-│   └── ...               # Other components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions and libraries
-│   ├── i18n/             # Internationalization
-│   ├── prisma.ts         # Prisma client
-│   └── ...               # Other utilities
-├── prisma/               # Prisma schema and migrations
-│   ├── schema.prisma     # Database schema
-│   └── ...               # Migrations
-├── public/               # Static assets
-└── ...                   # Configuration files
-```
+## 📈 Performance Optimizations
 
----
-
-## 🛠️ Technologies Used
-
-- **Frontend**: Next.js, React, Tailwind CSS, shadcn/ui.
-- **Backend**: Next.js API Routes, Prisma ORM.
-- **Database**: MongoDB.
-- **Authentication**: NextAuth.js, OTP via Email, Google OAuth.
-- **Caching**: Redis for OTP storage.
-- **Internationalization**: Custom i18n solution.
-- **Deployment**: Vercel.
-
----
-
-## 🗺️ User Roles and Responsibilities
-
-### Donor
-
-- **Register and Login**: Create an account and log in securely.
-- **Update Profile**: Maintain personal and health information.
-- **Check Eligibility**: Use the eligibility checker to determine donation readiness.
-- **Schedule Appointments**: Book appointments for blood donation.
-- **Track Donations**: View donation history and upcoming appointments.
-- **Respond to Urgent Requests**: Get notified and respond to urgent blood requests.
-
-### Admin
-
-- **Manage Donors**: View and update donor profiles and eligibility.
-- **Oversee Appointments**: Approve, reschedule, or cancel appointments.
-- **Inventory Management**: Monitor and update blood inventory levels.
-- **Handle Urgent Requests**: Process and fulfill urgent blood requests.
-- **Generate Reports**: Access analytics and generate reports on donation trends.
-- **System Configuration**: Manage application settings and user roles.
-
----
+- Server-side rendering (SSR)
+- Static site generation (SSG)
+- Image optimization
+- Redis caching
+- Database indexing
+- Lazy loading components
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
----
+## 📝 License
 
-## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 👥 Authors
+
+- Your Name - Initial work
+
+## 🙏 Acknowledgments
+
+- Next.js team for the amazing framework
+- Prisma team for the excellent ORM
+- All contributors who have helped shape this project
+
+## 📞 Support
+
+For support, email support@lifeflow.com or create a support ticket in the system.

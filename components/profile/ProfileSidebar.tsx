@@ -49,7 +49,7 @@ export function ProfileSidebar({
   };
 
   const status = getStatusInfo();
-
+  console.log(user)
   return (
     <Card>
       <CardContent className="p-4">

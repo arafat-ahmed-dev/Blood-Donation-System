@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, MapPin, Phone } from "lucide-react"
-
+import ClientLayout from "@/components/layout/clientLayout"
 export default function DonationCenterPage() {
   const donationCenters = [
     {
@@ -118,9 +118,10 @@ export default function DonationCenterPage() {
   ]
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl font-bold">Donation Centers</h1>
+    <ClientLayout>
+      <div className="container py-8">
+        <div className="flex flex-col gap-2 mb-8">
+          <h1 className="text-3xl font-bold">Donation Centers</h1>
         <p className="text-muted-foreground">Find blood donation centers near you and schedule your next donation</p>
       </div>
 
@@ -284,5 +285,6 @@ export default function DonationCenterPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </ClientLayout>
   )
 }

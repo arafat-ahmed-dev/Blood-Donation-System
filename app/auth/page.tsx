@@ -2,9 +2,25 @@
 
 import { AuthForm } from "@/components/auth/auth-form";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AuthPage() {
+  // authenticate user not allow
+  const router = useRouter();
+  const { status } = useSession();
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(`/profile`);
+    }
+  }, [status, router]);
+
+  if (status === "authenticated") {
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-10 px-4 bg-gradient-to-b from-white to-blood-50 dark:from-gray-950 dark:to-blood-950/30 bg-blood-pattern">
       <motion.div
