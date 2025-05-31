@@ -252,7 +252,29 @@ export const upcomingAppointments = [
     status: "Pending",
   },
 ];
-
+export const DONATION_CENTERS = [
+  {
+    id: 1,
+    name: "Central Blood Bank",
+    address: "123 Medical Center Road, Dhaka",
+    phone: "+880 1712-345678",
+    hours: "24/7",
+    status: "Active",
+    staff: 12,
+    lastUpdated: "2024-05-12",
+  },
+  {
+    id: 2,
+    name: "City Medical Center",
+    address: "45 Hospital Zone, Chittagong",
+    phone: "+880 1812-345678",
+    hours: "8 AM - 10 PM",
+    status: "Active",
+    staff: 8,
+    lastUpdated: "2024-05-11",
+  },
+  // Add more centers as needed
+];
 export const getStatusColor = (status: string) => {
   switch (status) {
     case "Adequate":

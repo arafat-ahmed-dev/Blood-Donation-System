@@ -1,8 +1,8 @@
-import { Bell, ChevronDown, Search } from 'lucide-react';
-import Image from 'next/image';
-import React from 'react'
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { Bell, ChevronDown, Search } from "lucide-react";
+import Image from "next/image";
+import React from "react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 function HeaderDashboard() {
   return (

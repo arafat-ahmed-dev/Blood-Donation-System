@@ -1,11 +1,34 @@
-import { Calendar, Droplet, FileText, Heart, LayoutDashboard, Link, MapPin, Settings, Users } from 'lucide-react';
-import Image from 'next/image';
-import React from 'react'
+import {
+  Calendar,
+  Droplet,
+  FileText,
+  Heart,
+  LayoutDashboard,
+  MapPin,
+  Settings,
+  Users,
+} from "lucide-react";
+import Image from "next/image";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
+
 interface SideBarProps {
   selectedTab: string;
-  setSelectedTab : (prep:string)=> void;
+  setSelectedTab: (prep: string) => void;
 }
-function SideBar({selectedTab , setSelectedTab}: SideBarProps) {
+
+function SideBar({ selectedTab, setSelectedTab }: SideBarProps) {
+  const sideBarOptions = [
+    { key: "Overview", value: "overview", icon: LayoutDashboard },
+    { key: "Blood Inventory", value: "inventory", icon: Droplet },
+    { key: "Donors", value: "donors", icon: Users },
+    { key: "Blood Requests", value: "requests", icon: Heart },
+    { key: "Appointments", value: "appointments", icon: Calendar },
+    { key: "Centers", value: "centers", icon: MapPin },
+    { key: "Reports", value: "reports", icon: FileText },
+    { key: "Settings", value: "settings", icon: Settings },
+  ];
+
   return (
     <div className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r bg-background z-30">
       <div className="flex items-center gap-2 px-6 py-4 h-16 border-b">
@@ -19,103 +42,24 @@ function SideBar({selectedTab , setSelectedTab}: SideBarProps) {
         <span className="text-lg font-bold">Rokto Shetu Admin</span>
       </div>
       <div className="flex flex-col flex-1 overflow-y-auto">
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "overview"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("overview")}
-          >
-            <LayoutDashboard className="h-5 w-5" />
-            <span>Overview</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "inventory"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("inventory")}
-          >
-            <Droplet className="h-5 w-5" />
-            <span>Blood Inventory</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "donors"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("donors")}
-          >
-            <Users className="h-5 w-5" />
-            <span>Donors</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "requests"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("requests")}
-          >
-            <Heart className="h-5 w-5" />
-            <span>Blood Requests</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "appointments"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("appointments")}
-          >
-            <Calendar className="h-5 w-5" />
-            <span>Appointments</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "centers"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("centers")}
-          >
-            <MapPin className="h-5 w-5" />
-            <span>Donation Centers</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "reports"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("reports")}
-          >
-            <FileText className="h-5 w-5" />
-            <span>Reports</span>
-          </Link>
-          <Link
-            href="/admin/dashboard"
-            className={`flex items-center gap-3 px-3 py-2 rounded-md ${
-              selectedTab === "settings"
-                ? "bg-red-100 text-red-600"
-                : "hover:bg-muted"
-            }`}
-            onClick={() => setSelectedTab("settings")}
-          >
-            <Settings className="h-5 w-5" />
-            <span>Settings</span>
-          </Link>
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
+          {sideBarOptions.map(({ key, value, icon: Icon }) => (
+            <Button
+              key={value}
+              variant="ghost"
+              className={cn(
+                "w-full justify-start gap-3 px-3 py-2 h-11 font-medium transition-all duration-200",
+                "hover:bg-red-50 hover:text-red-600",
+                "active:scale-[0.98]",
+                selectedTab === value &&
+                  "bg-red-100 text-red-600 hover:bg-red-100"
+              )}
+              onClick={() => setSelectedTab(value)}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="truncate">{key}</span>
+            </Button>
+          ))}
         </nav>
       </div>
       <div className="p-4 border-t">
@@ -138,4 +82,4 @@ function SideBar({selectedTab , setSelectedTab}: SideBarProps) {
   );
 }
 
-export default SideBar
+export default SideBar;

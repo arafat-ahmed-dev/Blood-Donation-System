@@ -42,7 +42,11 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import { bloodInventory, getProgressColor, getStatusColor } from "@/lib/adminData";
+import {
+  bloodInventory,
+  getProgressColor,
+  getStatusColor,
+} from "@/lib/adminData";
 
 export default function InventoryDashboard() {
   return (
@@ -239,5 +243,4 @@ export default function InventoryDashboard() {
       </div>
     </div>
   );
-};
-
+}

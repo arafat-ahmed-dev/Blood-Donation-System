@@ -13,14 +13,15 @@ import AppointmentsDashboard from "@/components/adminDashboard/Appointments";
 import ReportsDashboard from "@/components/adminDashboard/Reports";
 
 export default function AdminDashboard() {
-  const [selectedTab, setSelectedTab] = useState("inventory=");
+  const [selectedTab, setSelectedTab] = useState("overview");
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Sidebar */}
       <SideBar selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+
       {/* Main Content */}
-      <div className="flex-1 lg:pl-64">
+      <div className="lg:pl-64">
         {/* Top Navigation */}
         <HeaderDashboard />
 

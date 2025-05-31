@@ -3,31 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DONATION_CENTERS } from "@/lib/adminData";
 import { MapPin, Phone, Clock, Plus, Edit, Trash2 } from "lucide-react";
-
-const DONATION_CENTERS = [
-  {
-    id: 1,
-    name: "Central Blood Bank",
-    address: "123 Medical Center Road, Dhaka",
-    phone: "+880 1712-345678",
-    hours: "24/7",
-    status: "Active",
-    staff: 12,
-    lastUpdated: "2024-05-12",
-  },
-  {
-    id: 2,
-    name: "City Medical Center",
-    address: "45 Hospital Zone, Chittagong",
-    phone: "+880 1812-345678",
-    hours: "8 AM - 10 PM",
-    status: "Active",
-    staff: 8,
-    lastUpdated: "2024-05-11",
-  },
-  // Add more centers as needed
-];
 
 export default function DonationCentersDashboard() {
   return (
