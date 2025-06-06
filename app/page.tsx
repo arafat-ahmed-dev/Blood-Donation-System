@@ -1,26 +1,63 @@
-import { HeroSection } from "@/components/home/HeroSection"
-import { SearchSection } from "@/components/home/SearchSection"
-import { UrgentNeedsSection } from "@/components/home/UrgentNeedsSection"
-import { HowItWorksSection } from "@/components/home/HowItWorksSection"
-import { BloodBanksSection } from "@/components/home/BloodBanksSection"
-import { ResourcesSection } from "@/components/home/ResourcesSection"
-import { ImpactStatsSection } from "@/components/home/ImpactStatsSection"
-import { CTASection } from "@/components/home/CTASection"
-import ClientLayout from "@/components/layout/clientLayout"
+// import { HeroSection } from "@/components/home/HeroSection"
+// import { SearchSection } from "@/components/home/SearchSection"
+// import { UrgentNeedsSection } from "@/components/home/UrgentNeedsSection"
+// import { HowItWorksSection } from "@/components/home/HowItWorksSection"
+// import { BloodBanksSection } from "@/components/home/BloodBanksSection"
+// import { ResourcesSection } from "@/components/home/ResourcesSection"
+// import { ImpactStatsSection } from "@/components/home/ImpactStatsSection"
+// import { CTASection } from "@/components/home/CTASection"
+// import ClientLayout from "@/components/layout/clientLayout"
 
-export default function Home() {
+// export default function Home() {
+//   return (
+//     <ClientLayout>
+//       <main>
+//         <HeroSection />
+//         <SearchSection />
+//         <UrgentNeedsSection />
+//         <HowItWorksSection />
+//         <BloodBanksSection />
+//         <ResourcesSection />
+//         <ImpactStatsSection />
+//         <CTASection />
+//       </main>
+//     </ClientLayout>
+//   )
+// }
+import type { Metadata } from "next";
+
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { Hero } from "@/components/layout/layout/hero";
+import { Statistics } from "@/components/layout/layout/statistics";
+import { HowItWorks } from "@/components/layout/layout/how-it-works";
+import { EmergencyRequests } from "@/components/layout/layout/blood/emergency-requests";
+import { FeaturedDonors } from "@/components/layout/layout/donors/featured-donors";
+import { Testimonials } from "@/components/layout/layout/testimonials";
+import { BloodCompatibility } from "@/components/layout/layout/blood/blood-compatibility";
+import { CTA } from "@/components/layout/layout/cta";
+
+export const metadata: Metadata = {
+  title: "রক্ত - বাংলাদেশে রক্তদান প্ল্যাটফর্ম",
+  description:
+    "রক্ত একটি রিয়েল-টাইম ফ্রি প্ল্যাটফর্ম যা রক্ত অনুসন্ধানকারীদের স্বেচ্ছাসেবী রক্তদাতাদের সাথে সংযুক্ত করতে সহায়তা করে।",
+};
+
+export default function HomePage() {
   return (
-    <ClientLayout>
+    <>
+      <Header />
       <main>
-        <HeroSection />
-        <SearchSection />
-        <UrgentNeedsSection />
-        <HowItWorksSection />
-        <BloodBanksSection />
-        <ResourcesSection />
-        <ImpactStatsSection />
-        <CTASection />
+        <Hero />
+        <Statistics />
+        <HowItWorks />
+        <EmergencyRequests />
+        <FeaturedDonors />
+        <BloodCompatibility />
+        <Testimonials />
+        <CTA />
       </main>
-    </ClientLayout>
-  )
+      <Footer />
+    </>
+  );
 }
