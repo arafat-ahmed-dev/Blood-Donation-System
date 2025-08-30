@@ -3,12 +3,31 @@ import prisma from "@/lib/prisma";
 import { OtpService } from "@/lib/otp";
 import { sendOTPEmail } from "@/lib/email";
 import { authErrors } from "@/lib/api-error-handler";
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 import { encrypt } from "@/lib/data-encryption-utils";
 
 // Initialize Redis and OTP service
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
-const otpService = new OtpService(redis);
+let redis: Redis | null = null;
+let otpService: OtpService;
+try {
+  if (
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    otpService = new OtpService(redis);
+    console.log("Upstash Redis OTP service initialized");
+  } else {
+    console.log("No Redis credentials provided, using mock OTP service");
+    otpService = new OtpService(null);
+  }
+} catch (error) {
+  console.warn("Failed to connect to Redis, using mock OTP service:", error);
+  otpService = new OtpService(null);
+}
 
 export async function POST(request: Request) {
   try {
@@ -82,9 +101,7 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return authErrors.serverError(
-        "Failed to create user. Please try again."
-      );
+      return authErrors.serverError("Failed to create user. Please try again.");
     }
     // Generate OTP using the service
     const otp = await otpService.generateAndStoreOtp(email);

@@ -1,4 +1,4 @@
-import type { Redis } from "ioredis";
+import type { Redis } from "@upstash/redis";
 
 export class OtpService {
   private redis: Redis | null;

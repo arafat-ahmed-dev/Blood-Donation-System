@@ -49,7 +49,7 @@ const loginSchema = z.object({
 const essentialInfoSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().min(10, { message: "Please enter a valid phone number" }),
-  bloodType: z.string({ required_error: "Please select your blood type" }),
+  bloodType: z.string().min(1, { message: "Please select your blood type" }),
 });
 
 // Step 2: Personal information schema
@@ -63,7 +63,7 @@ const personalInfoSchema = z.object({
   dateOfBirth: z
     .string()
     .min(1, { message: "Please enter your date of birth" }),
-  gender: z.string({ required_error: "Please select your gender" }),
+  gender: z.string().min(1, { message: "Please select your gender" }),
 });
 
 // Step 3: Address information schema
@@ -82,7 +82,6 @@ const fadeIn = {
     y: 0,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
     },
   },
   exit: {
@@ -90,7 +89,6 @@ const fadeIn = {
     y: -20,
     transition: {
       duration: 0.2,
-      ease: "easeIn",
     },
   },
 };
@@ -103,7 +101,6 @@ const progressVariants = {
     width: `${step * 33.33}%`,
     transition: {
       duration: 0.7,
-      ease: [0.4, 0.0, 0.2, 1],
     },
   }),
 };
@@ -114,7 +111,6 @@ const pulseVariants = {
     scale: [1, 1.05, 1],
     transition: {
       duration: 1.2,
-      ease: "easeInOut",
       times: [0, 0.5, 1],
       repeat: Infinity,
       repeatDelay: 0.5,
@@ -128,7 +124,7 @@ const checkmarkVariants = {
     pathLength: 1,
     opacity: 1,
     transition: {
-      pathLength: { type: "spring", duration: 1, bounce: 0 },
+      pathLength: { type: "spring" as const, duration: 1, bounce: 0 },
       opacity: { duration: 0.3 },
     },
   },

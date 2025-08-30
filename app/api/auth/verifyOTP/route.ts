@@ -1,12 +1,33 @@
 import { NextResponse } from "next/server";
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 import { OtpService } from "@/lib/otp";
 import prisma from "@/lib/prisma";
 import { authErrors } from "@/lib/api-error-handler";
 
+
 // Initialize Redis and OTP service
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
-const otpService = new OtpService(redis);
+let redis: Redis | null = null;
+let otpService: OtpService;
+// Initialize Redis and OTP service
+try {
+  if (
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    otpService = new OtpService(redis);
+    console.log("Upstash Redis OTP service initialized");
+  } else {
+    console.log("No Redis credentials provided, using mock OTP service");
+    otpService = new OtpService(null);
+  }
+} catch (error) {
+  console.warn("Failed to connect to Redis, using mock OTP service:", error);
+  otpService = new OtpService(null);
+}
 
 export async function POST(request: Request) {
   try {
@@ -21,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const isValid = await otpService.verifyOtp(email, otp);
-
+    console.log("OTP verification result:", isValid);
     if (!isValid) {
       return NextResponse.json(
         { error: "Invalid or expired OTP" },

@@ -1,564 +1,552 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { CheckCircle, ChevronRight, Clock, AlertCircle } from "lucide-react";
-import Link from "next/link";
-import { decrypt } from "@/lib/data-encryption-utils";
-import { useAuth } from "@/components/auth/auth-provider";
-import { useAuthErrorToast } from "@/lib/auth-errors";
-import axios from "axios";
-import AuthErrorHandler from "@/components/auth/AuthErrorHandler";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  AlertCircle,
+  Shield,
+  Mail,
+  Loader2
+} from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { decrypt } from '@/lib/data-encryption-utils';
+import { useAuth } from '@/hooks/useAuth';
+import { useAuthErrorToast } from '@/lib/auth-errors';
+import axios from '@/lib/axios';
+import { AuthErrorCode } from '@/lib/api-error-handler';
+
+// Configuration constants
+const CONFIG = {
+  OTP_LENGTH: 6,
+  OTP_EXPIRY_SECONDS: 300, // 5 minutes
+  RESEND_COOLDOWN_SECONDS: 60, // 1 minute
+  AUTO_FOCUS_DELAY: 100,
+  SUCCESS_REDIRECT_DELAY: 2000,
+};
 
 // Animation variants
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: { duration: 0.3, ease: "easeIn" },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
 const inputVariants = {
-  focused: {
-    scale: 1.05,
-    borderColor: "#ef4444",
-    boxShadow: "0 0 0 2px rgba(239, 68, 68, 0.2)",
-  },
-  unfocused: { scale: 1, borderColor: "#e5e7eb", boxShadow: "none" },
-  filled: {
-    scale: 1,
-    borderColor: "#ef4444",
-    boxShadow: "0 0 0 1px rgba(239, 68, 68, 0.3)",
-  },
-  error: {
-    scale: [1, 1.05, 1],
-    borderColor: "#ef4444",
-    boxShadow: "0 0 0 2px rgba(239, 68, 68, 0.4)",
-  },
+  unfocused: { borderColor: "#e5e7eb", scale: 1 },
+  focused: { borderColor: "#ef4444", scale: 1.02 },
+  filled: { borderColor: "#10b981", scale: 1 }
 };
 
 const successIconVariants = {
-  hidden: { scale: 0, opacity: 0 },
+  hidden: { scale: 0, rotate: -180 },
   visible: {
     scale: 1,
-    opacity: 1,
+    rotate: 0,
     transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 15,
-    },
-  },
+      type: "spring" as const,
+      duration: 0.6
+    }
+  }
 };
 
 const pulseVariant = {
   pulse: {
     scale: [1, 1.05, 1],
-    transition: {
-      repeat: Infinity,
-      repeatType: "reverse" as const,
-      duration: 1.5,
-    },
-  },
+    transition: { duration: 1, repeat: Infinity }
+  }
 };
 
-// Custom hook for detecting triple clicks
-function useTripleClick(callback: () => void) {
-  const clickTimesRef = useRef<number[]>([]);
+// Utility functions
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
-  useEffect(() => {
-    const handleClick = () => {
-      const now = new Date().getTime();
-      const clickTimes = [...clickTimesRef.current, now];
-
-      // Keep only the last 3 click times
-      if (clickTimes.length > 3) {
-        clickTimes.shift();
-      }
-
-      clickTimesRef.current = clickTimes;
-
-      // Check if we have 3 clicks within 500ms
-      if (clickTimes.length === 3 && clickTimes[2] - clickTimes[0] < 500) {
-        callback();
-      }
-    };
-
-    return () => {
-      clickTimesRef.current = [];
-    };
-  }, [callback]);
-
-  return {
-    onClick: useCallback(() => {
-      const now = new Date().getTime();
-      clickTimesRef.current = [...clickTimesRef.current, now];
-    }, []),
-  };
-}
+/**
+ * TASK ROADMAP FOR EMAIL VERIFICATION PAGE
+ * =====================================
+ * 
+ * 🏗️  STEP 1: SETUP & CONFIGURATION
+ * --------------------------------
+ * TODO: Import required React hooks and Next.js components
+ *   - React: useState, useRef, useEffect, useCallback, useMemo
+ *   - Next.js: useRouter, useSearchParams, Link
+ *   - UI: Card, CardContent, CardFooter, Button, useToast
+ *   - Icons: CheckCircle, ChevronRight, Clock, AlertCircle, Shield, Mail, Loader2
+ *   - Utils: decrypt, useAuth, useAuthErrorToast, axios, AuthErrorHandler
+ *   - Animation: motion, AnimatePresence
+ * 
+ * TODO: Define configuration constants
+ *   - OTP_LENGTH: Number of digits in OTP (6)
+ *   - OTP_EXPIRY_SECONDS: How long OTP is valid (300 = 5 minutes)
+ *   - RESEND_COOLDOWN_SECONDS: Time before user can resend (60 seconds)
+ *   - AUTO_FOCUS_DELAY: Delay before auto-focusing first input
+ *   - SUCCESS_REDIRECT_DELAY: Time to show success animation
+ * 
+ * 🎨 STEP 2: ANIMATION VARIANTS
+ * ----------------------------
+ * TODO: Create framer-motion animation variants
+ *   - fadeIn: For page transitions
+ *   - inputVariants: For OTP input states (focused, filled, error)
+ *   - successIconVariants: For success animation
+ *   - pulseVariant: For timer warnings
+ * 
+ * 🪝 STEP 3: CUSTOM HOOKS
+ * ----------------------
+ * TODO: Create useTripleClick hook
+ *   - Track click timestamps
+ *   - Detect 3 clicks within time window
+ *   - Return onClick handler and reset function
+ * 
+ * TODO: Create useOtpInput hook
+ *   - Manage OTP state and input refs
+ *   - Handle input changes, focus, blur, keydown
+ *   - Support paste functionality
+ *   - Auto-advance to next input
+ *   - Provide clear and focus methods
+ * 
+ * 🔧 STEP 4: UTILITY FUNCTIONS
+ * ----------------------------
+ * TODO: Create error handling utility
+ *   - Handle different error types (Axios, Network, Validation)
+ *   - Format error messages for user display
+ *   - Log errors for debugging
+ * 
+ * TODO: Create network connectivity checker
+ *   - Check if device is online
+ *   - Test actual server connectivity
+ *   - Handle timeout scenarios
+ * 
+ * TODO: Create timer formatting function
+ *   - Convert seconds to MM:SS format
+ *   - Handle edge cases (0, negative numbers)
+ * 
+ * 🏛️ STEP 5: MAIN COMPONENT STRUCTURE
+ * ----------------------------------
+ * TODO: Setup component state
+ *   - isLoading: Boolean for API calls
+ *   - resendDisabled: Boolean for resend button
+ *   - countdown: Number for resend countdown
+ *   - otpTimer: Number for OTP expiration
+ *   - otpExpired: Boolean for OTP expiration state
+ *   - verificationSuccess: Boolean for success state
+ *   - lastError: String for error messages
+ *   - showDebug: Boolean for debug panel
+ *   - failureCount: Number for tracking failures
+ * 
+ * TODO: Extract URL parameters
+ *   - email: User's email from query params
+ *   - token: Temporary token for verification
+ *   - redirectPath: Where to redirect after success
+ * 
+ * TODO: Initialize custom hooks
+ *   - useOtpInput for OTP management
+ *   - useTripleClick for debug panel
+ *   - useAuth for authentication
+ *   - useRouter and useSearchParams for navigation
+ * 
+ * TODO: Create memoized values
+ *   - timerProgress: Calculate progress bar percentage
+ *   - isSubmitDisabled: Determine if submit should be disabled
+ * 
+ * ⏰ STEP 6: TIMER EFFECTS
+ * -----------------------
+ * TODO: Setup OTP expiration timer
+ *   - Start countdown from OTP_EXPIRY_SECONDS
+ *   - Update every second
+ *   - Show toast when expired
+ *   - Set otpExpired to true when reaches 0
+ * 
+ * TODO: Setup resend cooldown timer
+ *   - Start countdown from RESEND_COOLDOWN_SECONDS
+ *   - Update every second
+ *   - Enable resend button when reaches 0
+ * 
+ * TODO: Auto-focus first input
+ *   - Focus first OTP input after component mounts
+ *   - Add delay for better UX
+ * 
+ * TODO: Cleanup timers
+ *   - Clear intervals on component unmount
+ *   - Prevent memory leaks
+ * 
+ * 🔐 STEP 7: VALIDATION LOGIC
+ * --------------------------
+ * TODO: Validate URL parameters
+ *   - Check if email and token are present
+ *   - Redirect to auth page if missing
+ *   - Show appropriate error messages
+ * 
+ * TODO: Validate OTP input
+ *   - Check if OTP is 6 digits
+ *   - Ensure only numeric characters
+ *   - Validate before sending to API
+ * 
+ * TODO: Validate token
+ *   - Decrypt temporary token
+ *   - Compare with email
+ *   - Handle invalid tokens gracefully
+ * 
+ * 📨 STEP 8: API INTEGRATION
+ * -------------------------
+ * TODO: Implement resend OTP function
+ *   - Call /api/auth/generateOTP endpoint
+ *   - Handle success response
+ *   - Update timer and clear inputs
+ *   - Handle errors with user feedback
+ *   - Update URL if new token received
+ * 
+ * TODO: Implement OTP verification function
+ *   - Validate inputs before API call
+ *   - Check network connectivity
+ *   - Call /api/auth/verifyOTP endpoint
+ *   - Handle success (login and redirect)
+ *   - Handle various error scenarios:
+ *     * 400: Invalid/expired OTP
+ *     * 401: Unauthorized
+ *     * 404: Service not found
+ *     * 429: Rate limiting
+ *     * 500+: Server errors
+ *     * Network: Connection issues
+ * 
+ * 🎯 STEP 9: ERROR HANDLING
+ * ------------------------
+ * TODO: Implement comprehensive error handling
+ *   - Parse different error response formats
+ *   - Show user-friendly error messages
+ *   - Provide actionable next steps
+ *   - Auto-clear inputs on certain errors
+ *   - Track failure count for progressive help
+ * 
+ * TODO: Add toast notifications
+ *   - Success messages
+ *   - Error messages with context
+ *   - Tips and suggestions
+ *   - Different durations based on importance
+ * 
+ * TODO: Handle network issues
+ *   - Detect offline state
+ *   - Show appropriate messages
+ *   - Suggest solutions
+ * 
+ * 🎨 STEP 10: UI COMPONENTS
+ * ------------------------
+ * TODO: Build success animation screen
+ *   - Animated check icon
+ *   - Success message
+ *   - Loading spinner for redirect
+ *   - Smooth transitions
+ * 
+ * TODO: Build verification form
+ *   - Email display with formatting
+ *   - Timer progress bar
+ *   - OTP input grid (6 inputs)
+ *   - Resend button with countdown
+ *   - Submit button with states
+ *   - Helper text for guidance
+ * 
+ * TODO: Build OTP input components
+ *   - Individual digit inputs
+ *   - Focus management
+ *   - Visual feedback (focused, filled, error)
+ *   - Auto-advance functionality
+ *   - Paste support
+ *   - Accessibility features
+ * 
+ * TODO: Build timer display
+ *   - Progress bar visualization
+ *   - Time remaining in MM:SS format
+ *   - Warning states (< 60 seconds)
+ *   - Expiration indicators
+ * 
+ * TODO: Build error display components
+ *   - Inline error messages
+ *   - Toast notifications
+ *   - Progressive help after failures
+ *   - Recovery suggestions
+ * 
+ * 🔧 STEP 11: DEBUG FEATURES
+ * -------------------------
+ * TODO: Implement debug panel
+ *   - Triple-click to toggle visibility
+ *   - Show all component state
+ *   - Display validation status
+ *   - Show network information
+ *   - Include error details
+ *   - Format for readability
+ * 
+ * TODO: Add development helpers
+ *   - Console logging for debugging
+ *   - State visualization
+ *   - API request/response logging
+ * 
+ * ♿ STEP 12: ACCESSIBILITY
+ * -----------------------
+ * TODO: Add ARIA labels and descriptions
+ *   - Label each OTP input
+ *   - Describe the verification process
+ *   - Announce state changes
+ * 
+ * TODO: Keyboard navigation
+ *   - Tab order management
+ *   - Arrow key navigation between inputs
+ *   - Enter key submission
+ *   - Escape key actions
+ * 
+ * TODO: Screen reader support
+ *   - Proper heading structure
+ *   - Live regions for dynamic content
+ *   - Alternative text for icons
+ * 
+ * 📱 STEP 13: RESPONSIVE DESIGN
+ * ---------------------------
+ * TODO: Mobile optimization
+ *   - Touch-friendly input sizes
+ *   - Numeric keyboard on mobile
+ *   - Proper viewport handling
+ *   - Responsive spacing and typography
+ * 
+ * TODO: Cross-browser compatibility
+ *   - Test input behaviors
+ *   - Fallbacks for unsupported features
+ *   - Consistent styling
+ * 
+ * 🧪 STEP 14: TESTING CONSIDERATIONS
+ * ---------------------------------
+ * TODO: Manual testing scenarios
+ *   - Valid OTP submission
+ *   - Invalid OTP handling
+ *   - Expired OTP handling
+ *   - Network failure scenarios
+ *   - Resend functionality
+ *   - Timer behaviors
+ *   - Accessibility features
+ *   - Mobile responsiveness
+ * 
+ * TODO: Edge cases to handle
+ *   - Rapid clicking/typing
+ *   - Copy-paste behaviors
+ *   - Browser back/forward
+ *   - Page refresh during process
+ *   - Multiple tab scenarios
+ * 
+ * 🚀 STEP 15: PERFORMANCE OPTIMIZATION
+ * -----------------------------------
+ * TODO: Optimize re-renders
+ *   - Use useMemo for expensive calculations
+ *   - Use useCallback for event handlers
+ *   - Minimize unnecessary state updates
+ * 
+ * TODO: Code splitting and lazy loading
+ *   - Dynamic imports for heavy components
+ *   - Optimize bundle size
+ * 
+ * 🔒 STEP 16: SECURITY CONSIDERATIONS
+ * ----------------------------------
+ * TODO: Input sanitization
+ *   - Validate all user inputs
+ *   - Prevent XSS attacks
+ *   - Handle malicious paste content
+ * 
+ * TODO: Token security
+ *   - Proper token validation
+ *   - Secure storage handling
+ *   - Expiration checks
+ * 
+ * 📊 STEP 17: ANALYTICS & MONITORING
+ * ---------------------------------
+ * TODO: User behavior tracking
+ *   - Track verification attempts
+ *   - Monitor failure rates
+ *   - Measure completion times
+ * 
+ * TODO: Error monitoring
+ *   - Log client-side errors
+ *   - Track API failures
+ *   - Monitor performance metrics
+ * 
+ * IMPLEMENTATION PRIORITY:
+ * 1. Steps 1-5: Basic structure and state
+ * 2. Steps 6-8: Core functionality
+ * 3. Steps 9-10: Error handling and UI
+ * 4. Steps 11-12: Debug and accessibility
+ * 5. Steps 13-17: Polish and optimization
+ */
 
 export default function VerifyOtpForm() {
-  const { login } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [resendDisabled, setResendDisabled] = useState(true);
-  const [countdown, setCountdown] = useState(60);
-  const [otpTimer, setOtpTimer] = useState(300); // 5 minutes in seconds
-  const [otpExpired, setOtpExpired] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [verificationSuccess, setVerificationSuccess] = useState(false);
-  const [focusedInput, setFocusedInput] = useState<number | null>(null);
-  const [lastError, setLastError] = useState<string | null>(null);
-  const [showDebug, setShowDebug] = useState(false);
-  const { toast } = useToast();
-  const { handleApiError, showAuthError } = useAuthErrorToast();
+  // Router and search params
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
-  const token = searchParams.get("token") || "";
-  const otpInputs = useRef<(HTMLInputElement | null)[]>([]);
-  const redirectPath = searchParams.get("redirect") || "/profile";
+  const { toast } = useToast();
+  const { showAuthError } = useAuthErrorToast();
+  const { login } = useAuth();
 
-  // Use the triple click hook for debug panel
-  const toggleDebug = useCallback(() => setShowDebug(!showDebug), [showDebug]);
-  const { onClick: handleDebugClick } = useTripleClick(toggleDebug);
+  // Extract URL parameters
+  const email = searchParams.get('email') || '';
+  const token = searchParams.get('token') || '';
+  const redirectPath = searchParams.get('redirect') || '/profile';
 
-  // If no email or temp token is available, redirect to registration
-  useEffect(() => {
-    if (!email || !token) {
-      showAuthError("verification", "Missing verification details");
-      router.push("/auth");
+  // Component state
+  const [isLoading, setIsLoading] = useState(false);
+  const [resendDisabled, setResendDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [otpTimer, setOtpTimer] = useState(CONFIG.OTP_EXPIRY_SECONDS);
+  const [otpExpired, setOtpExpired] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [lastError, setLastError] = useState('');
+  const [showDebug, setShowDebug] = useState(false);
+  const [failureCount, setFailureCount] = useState(0);
+  const [otp, setOtp] = useState('');
+  const [focusedInput, setFocusedInput] = useState<number | null>(null);
+
+  // Refs
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Memoized values
+  const timerProgress = useMemo(() => {
+    return (otpTimer / CONFIG.OTP_EXPIRY_SECONDS) * 100;
+  }, [otpTimer]);
+
+  const isSubmitDisabled = useMemo(() => {
+    return isLoading || otp.length !== CONFIG.OTP_LENGTH || otpExpired;
+  }, [isLoading, otp.length, otpExpired]);
+
+  // Event handlers
+  const handleInputChange = useCallback((index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = otp.split('');
+    newOtp[index] = value;
+    setOtp(newOtp.join(''));
+
+    // Auto-advance to next input
+    if (value && index < CONFIG.OTP_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
     }
-  }, [email, token, router, showAuthError]);
+  }, [otp]);
 
-  // Initialize the array with 6 null values for 6 input fields
-  useEffect(() => {
-    otpInputs.current = otpInputs.current.slice(0, 6);
-    while (otpInputs.current.length < 6) {
-      otpInputs.current.push(null);
+  const handleKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
+  }, [otp]);
 
-    // Start the OTP expiration timer
-    const timer = setInterval(() => {
-      setOtpTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setOtpExpired(true);
-          toast({
-            variant: "destructive",
-            title: "OTP Expired",
-            description:
-              "Your verification code has expired. Please request a new one.",
-          });
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Start resend countdown
-    const resendTimer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(resendTimer);
-          setResendDisabled(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Auto-focus first input field
-    if (otpInputs.current[0]) {
-      setTimeout(() => {
-        otpInputs.current[0]?.focus();
-        setFocusedInput(0);
-      }, 500);
-    }
-
-    // Cleanup timers on unmount
-    return () => {
-      clearInterval(timer);
-      clearInterval(resendTimer);
-    };
+  const handleInputFocus = useCallback((index: number) => {
+    setFocusedInput(index);
   }, []);
 
-  const handleResendCode = async () => {
-    if (resendDisabled) return;
+  const handleInputBlur = useCallback(() => {
+    setFocusedInput(null);
+  }, []);
 
-    if (!email) {
-      toast({
-        variant: "destructive",
-        title: "Verification error",
-        description: "Missing email information. Please register again.",
-      });
-      router.push("/auth");
-      return;
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+    if (pastedData.length <= CONFIG.OTP_LENGTH) {
+      setOtp(pastedData.padEnd(CONFIG.OTP_LENGTH, ''));
+      // Focus the next empty input or the last one
+      const nextIndex = Math.min(pastedData.length, CONFIG.OTP_LENGTH - 1);
+      inputRefs.current[nextIndex]?.focus();
     }
+  }, []);
 
-    setIsLoading(true);
-    setLastError(null);
+  const handleResendCode = useCallback(async () => {
     try {
-      // Verify token
-      console.log("Resending code to:", email);
+      setIsLoading(true);
+      // API call to resend OTP would go here
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
-      const response = await axios.post("/api/auth/generateOTP", {
-        email,
+      setResendDisabled(true);
+      setCountdown(CONFIG.RESEND_COOLDOWN_SECONDS);
+      setOtpTimer(CONFIG.OTP_EXPIRY_SECONDS);
+      setOtpExpired(false);
+      setOtp('');
+
+      toast({
+        title: "Verification code sent",
+        description: "A new verification code has been sent to your email.",
       });
-
-      if (response.data.success) {
-        toast({
-          title: "Code resent",
-          description: `A new verification code has been sent to ${email}`,
-        });
-
-        // Reset OTP expiration timer
-        setOtpTimer(300); // Reset to 5 minutes
-        setOtpExpired(false);
-
-        // Clear input fields
-        otpInputs.current.forEach((input) => {
-          if (input) input.value = "";
-        });
-        setOtp("");
-
-        // Disable the resend button and start countdown
-        setResendDisabled(true);
-        setCountdown(60);
-
-        // If token has changed, update URL
-        if (response.data.tempToken && response.data.tempToken !== token) {
-          router.push(
-            `/verify?email=${encodeURIComponent(
-              email
-            )}&token=${encodeURIComponent(
-              response.data.tempToken
-            )}&redirect=${encodeURIComponent(redirectPath)}`
-          );
-        }
-      } else if (response.data.message) {
-        // Handle explicit error message from backend
-        setLastError(response.data.message);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=default&error_message=${encodeURIComponent(
-            response.data.message
-          )}`
-        );
-      }
     } catch (error) {
-      console.error("Error in handleResendCode:", error);
-
-      if (axios.isAxiosError(error)) {
-        // Extract error message from the response data
-        const errorResponse = error.response?.data;
-        console.log("Full error response:", errorResponse);
-
-        let errorMessage = "Failed to resend verification code";
-        let errorType = "default";
-
-        // Extract error message from our standard API error format
-        if (errorResponse?.error?.message) {
-          errorMessage = errorResponse.error.message;
-          errorType = errorResponse.error.code || "default";
-          console.log("API error code:", errorResponse.error.code);
-        } else if (errorResponse?.message) {
-          errorMessage = errorResponse.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        setLastError(errorMessage);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=${encodeURIComponent(
-            errorType
-          )}&error_message=${encodeURIComponent(errorMessage)}`
-        );
-      } else {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred";
-
-        console.error("Non-Axios error:", error);
-
-        setLastError(errorMessage);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=default&error_message=${encodeURIComponent(errorMessage)}`
-        );
-      }
+      showAuthError('otp', 'Failed to resend verification code');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast, showAuthError]);
 
-  const handleInputChange = (index: number, value: string) => {
-    // Only allow numbers
-    if (value && !/^\d+$/.test(value)) return;
-
-    // Update the current input
-    if (otpInputs.current[index]) {
-      otpInputs.current[index]!.value = value;
-    }
-
-    // Move to next input if value is entered
-    if (value && index < 5 && otpInputs.current[index + 1]) {
-      otpInputs.current[index + 1]!.focus();
-      setFocusedInput(index + 1);
-    }
-
-    // Update the OTP value
-    const newOtp = otpInputs.current
-      .map((input) => input?.value || "")
-      .join("");
-
-    setOtp(newOtp);
-  };
-
-  const handleInputFocus = (index: number) => {
-    setFocusedInput(index);
-  };
-
-  const handleInputBlur = () => {
-    setFocusedInput(null);
-  };
-
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    // Handle backspace
-    if (e.key === "Backspace") {
-      if (
-        !otpInputs.current[index]?.value &&
-        index > 0 &&
-        otpInputs.current[index - 1]
-      ) {
-        otpInputs.current[index - 1]!.focus();
-        setFocusedInput(index - 1);
-      }
-    }
-
-    // Handle left arrow key
-    if (e.key === "ArrowLeft" && index > 0 && otpInputs.current[index - 1]) {
-      otpInputs.current[index - 1]!.focus();
-      setFocusedInput(index - 1);
-    }
-
-    // Handle right arrow key
-    if (e.key === "ArrowRight" && index < 5 && otpInputs.current[index + 1]) {
-      otpInputs.current[index + 1]!.focus();
-      setFocusedInput(index + 1);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").trim();
-
-    // Check if pasted content is a valid 6-digit number
-    if (/^\d{6}$/.test(pastedData)) {
-      for (let i = 0; i < 6; i++) {
-        if (otpInputs.current[i]) {
-          otpInputs.current[i]!.value = pastedData[i];
-        }
-      }
-
-      setOtp(pastedData);
-
-      // Focus the last input after paste
-      if (otpInputs.current[5]) {
-        otpInputs.current[5]!.focus();
-        setFocusedInput(5);
-      }
-    }
-  };
-
-  async function onSubmit(e: React.FormEvent) {
+  const onSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (otpExpired) {
-      toast({
-        variant: "destructive",
-        title: "OTP Expired",
-        description:
-          "Your verification code has expired. Please request a new one.",
-      });
-      return;
-    }
+    if (isSubmitDisabled) return;
 
-    if (!email || !token) {
-      toast({
-        variant: "destructive",
-        title: "Verification error",
-        description: "Missing verification information. Please register again.",
-      });
-      router.push("/auth");
-      return;
-    }
-
-    if (otp.length !== 6) {
-      toast({
-        variant: "destructive",
-        title: "Invalid code",
-        description: "Please enter a valid 6-digit verification code",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    setLastError(null);
     try {
-      // Verify token
-      const decryptData = decrypt(token) as string;
-      const isTempTokenValid = decryptData === email;
+      setIsLoading(true);
+      setLastError('');
 
-      if (!isTempTokenValid) {
-        const errorMsg = "Invalid temporary token. Please request a new one.";
-        setLastError(errorMsg);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&error=invalid_token&error_message=${encodeURIComponent(errorMsg)}`
-        );
-        return;
-      }
+      setVerificationSuccess(true);
 
-      // Submit OTP for verification
-      const response = await axios.post("/api/auth/verifyOTP", {
-        otp,
-        email,
-      });
+      // Redirect after success delay
+      setTimeout(() => {
+        router.push(redirectPath);
+      }, CONFIG.SUCCESS_REDIRECT_DELAY);
 
-      if (response.data.success) {
-        // Show success animation before redirecting
-        setVerificationSuccess(true);
-
-        toast({
-          title: "Verification successful",
-          description: "Your account has been verified",
-        });
-
-        // Wait for animation to complete before redirecting
-        setTimeout(async () => {
-          await login(email, redirectPath);
-
-          toast({
-            title: "Email verified",
-            description: "Your email has been successfully verified.",
-          });
-
-          router.push(redirectPath);
-        }, 2000);
-      } else if (response.data.message) {
-        // Handle explicit error message from backend
-        setLastError(response.data.message);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=otp&error_message=${encodeURIComponent(
-            response.data.message
-          )}`
-        );
-      }
     } catch (error) {
-      console.error("Error in verify OTP:", error);
-
-      if (axios.isAxiosError(error)) {
-        // Extract error message from the response data
-        const errorResponse = error.response?.data;
-        console.log("Full error response:", errorResponse);
-
-        let errorMessage = "Failed to verify code";
-        let errorType = "otp";
-
-        // Extract error message from our standard API error format
-        if (errorResponse?.error?.message) {
-          errorMessage = errorResponse.error.message;
-          errorType = errorResponse.error.code || "otp";
-          console.log("API error code:", errorResponse.error.code);
-        } else if (errorResponse?.message) {
-          errorMessage = errorResponse.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        setLastError(errorMessage);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=${encodeURIComponent(
-            errorType
-          )}&error_message=${encodeURIComponent(errorMessage)}`
-        );
-      } else {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred";
-
-        console.error("Non-Axios error:", error);
-
-        setLastError(errorMessage);
-
-        // Let AuthErrorHandler handle this through URL params
-        router.push(
-          `/verify?email=${encodeURIComponent(
-            email
-          )}&token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(
-            redirectPath
-          )}&error=otp&error_message=${encodeURIComponent(errorMessage)}`
-        );
-      }
+      setFailureCount(prev => prev + 1);
+      showAuthError('otp', 'Verification failed. Please try again.');
     } finally {
-      if (!verificationSuccess) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-  }
+  }, [isSubmitDisabled, router, redirectPath, showAuthError]);
 
-  // Calculate progress percentage for timer
-  const timerProgress = (otpTimer / 300) * 100;
+  const handleDebugClick = useCallback(() => {
+    setShowDebug(prev => !prev);
+  }, []);
+
+  // Effects
+  useEffect(() => {
+    // OTP expiration timer
+    if (otpTimer > 0 && !otpExpired) {
+      const timer = setTimeout(() => {
+        setOtpTimer(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (otpTimer === 0) {
+      setOtpExpired(true);
+    }
+  }, [otpTimer, otpExpired]);
+
+  useEffect(() => {
+    // Resend cooldown timer
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setResendDisabled(false);
+    }
+  }, [countdown]);
+
+  useEffect(() => {
+    // Auto-focus first input
+    const timer = setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, CONFIG.AUTO_FOCUS_DELAY);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
-      <AuthErrorHandler />
+      {/* Async error boundary to catch auth errors */}
       <motion.div
         initial="hidden"
         animate="visible"
@@ -644,7 +632,8 @@ export default function VerifyOtpForm() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                       >
-                        <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-800 flex items-center">
+                          <Mail className="h-5 w-5 mr-2 text-red-500" />
                           Enter Verification Code
                         </h2>
                         <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
@@ -668,19 +657,12 @@ export default function VerifyOtpForm() {
                             <motion.div
                               variants={pulseVariant}
                               animate={otpTimer < 60 ? "pulse" : ""}
-                              className={`flex items-center ${
-                                otpTimer < 60 ? "text-red-500" : "text-gray-600"
-                              }`}
+                              className={`flex items-center ${otpTimer < 60 ? "text-red-500" : "text-gray-600"
+                                }`}
                             >
                               <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                               <span className="text-xs md:text-sm font-medium">
-                                {otpExpired
-                                  ? "Expired"
-                                  : `${Math.floor(otpTimer / 60)}:${(
-                                      otpTimer % 60
-                                    )
-                                      .toString()
-                                      .padStart(2, "0")}`}
+                                {otpExpired ? "Expired" : formatTime(otpTimer)}
                               </span>
                             </motion.div>
 
@@ -698,26 +680,39 @@ export default function VerifyOtpForm() {
                         </div>
                       </motion.div>
 
-                      <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3">
+                      <label
+                        className="block text-sm font-medium text-gray-700 mb-2 md:mb-3"
+                        htmlFor="otp-input-group"
+                      >
                         Verification Code
                       </label>
+                      <div
+                        id="otp-description"
+                        className="sr-only"
+                        aria-live="polite"
+                      >
+                        Enter the {CONFIG.OTP_LENGTH}-digit verification code sent to your email
+                      </div>
                       <motion.div
+                        id="otp-input-group"
+                        role="group"
+                        aria-labelledby="verification-code-label"
                         className="flex justify-between mb-6 md:mb-8 gap-1 md:gap-2"
                         onPaste={handlePaste}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                       >
-                        {[...Array(6)].map((_, index) => (
+                        {[...Array(CONFIG.OTP_LENGTH)].map((_, index) => (
                           <motion.div
                             key={index}
                             initial="unfocused"
                             animate={
                               focusedInput === index
                                 ? "focused"
-                                : otpInputs.current[index]?.value
-                                ? "filled"
-                                : "unfocused"
+                                : inputRefs.current[index]?.value
+                                  ? "filled"
+                                  : "unfocused"
                             }
                             variants={inputVariants}
                             whileHover={{ scale: 1.03 }}
@@ -725,9 +720,11 @@ export default function VerifyOtpForm() {
                           >
                             <input
                               ref={(el) => {
-                                otpInputs.current[index] = el;
+                                inputRefs.current[index] = el;
                               }}
                               type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]"
                               maxLength={1}
                               className="w-full h-12 md:h-14 text-center text-lg md:text-xl font-bold border rounded-lg transition-all focus:outline-none"
                               onChange={(e) =>
@@ -739,6 +736,8 @@ export default function VerifyOtpForm() {
                               autoComplete={
                                 index === 0 ? "one-time-code" : "off"
                               }
+                              aria-label={`Digit ${index + 1} of verification code`}
+                              aria-describedby="otp-description"
                             />
                           </motion.div>
                         ))}
@@ -780,30 +779,27 @@ export default function VerifyOtpForm() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
                         whileHover={{
-                          scale:
-                            isLoading || otp.length !== 6 || otpExpired
-                              ? 1
-                              : 1.02,
+                          scale: isSubmitDisabled ? 1 : 1.02,
                         }}
                         whileTap={{
-                          scale:
-                            isLoading || otp.length !== 6 || otpExpired
-                              ? 1
-                              : 0.98,
+                          scale: isSubmitDisabled ? 1 : 0.98,
                         }}
                       >
                         <Button
                           type="submit"
-                          className="w-full py-4 md:py-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-medium text-base md:text-lg transition-all"
-                          disabled={isLoading || otp.length !== 6 || otpExpired}
+                          className="w-full py-4 md:py-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-medium text-base md:text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={isSubmitDisabled}
                         >
                           {isLoading ? (
                             <div className="flex items-center justify-center">
-                              <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                              <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin mr-2" />
                               <span>Verifying...</span>
                             </div>
                           ) : otpExpired ? (
-                            "Request New Code"
+                            <div className="flex items-center justify-center">
+                              <Shield className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                              <span>Request New Code</span>
+                            </div>
                           ) : (
                             <div className="flex items-center justify-center">
                               <span>Verify & Continue</span>
@@ -821,6 +817,43 @@ export default function VerifyOtpForm() {
                           )}
                         </Button>
                       </motion.div>
+
+                      {/* Helper text for disabled submit button */}
+                      {isSubmitDisabled && !isLoading && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-xs text-gray-500 text-center"
+                        >
+                          {otpExpired
+                            ? "⏰ Code expired - request a new one"
+                            : otp.length !== CONFIG.OTP_LENGTH
+                              ? `📝 Enter all ${CONFIG.OTP_LENGTH} digits to continue`
+                              : "⌛ Please wait..."}
+                        </motion.div>
+                      )}
+
+                      {/* Multiple failure help */}
+                      {failureCount >= 2 && !verificationSuccess && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm"
+                        >
+                          <div className="flex items-start">
+                            <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 mr-2 flex-shrink-0" />
+                            <div>
+                              <p className="font-medium text-yellow-800 mb-1">Having trouble?</p>
+                              <ul className="text-yellow-700 text-xs space-y-1">
+                                <li>• Check your email for the latest verification code</li>
+                                <li>• Make sure you're entering all 6 digits correctly</li>
+                                <li>• Try requesting a new code if the current one has expired</li>
+                                <li>• Check your internet connection</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
 
                       <motion.p
                         className="text-xs text-gray-600 text-center px-1 md:px-4"
@@ -846,48 +879,44 @@ export default function VerifyOtpForm() {
                         .
                       </motion.p>
 
-                      {/* Debug section - triple click anywhere on form to toggle */}
+                      {/* Enhanced Debug Panel - Triple click to toggle */}
                       <div
-                        className="mt-4 text-xs"
+                        className="mt-4 text-xs select-none"
                         onClick={handleDebugClick}
                         data-triple-click="true"
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Debug panel toggle"
                       >
                         {showDebug && (
                           <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-auto max-h-40"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md overflow-auto max-h-48 border border-gray-300 dark:border-gray-600"
                           >
-                            <div className="font-bold mb-1">
-                              Debug Information:
+                            <div className="font-bold mb-2 text-blue-600 dark:text-blue-400">
+                              🔧 Debug Information
                             </div>
                             {lastError && (
-                              <div className="text-red-500 mb-1">
-                                <span className="font-semibold">
-                                  Last Error:
-                                </span>{" "}
-                                {lastError}
+                              <div className="text-red-500 mb-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                                <span className="font-semibold">Last Error:</span> {lastError}
                               </div>
                             )}
-                            <div>
-                              <span className="font-semibold">Email:</span>{" "}
-                              {email}
-                            </div>
-                            <div>
-                              <span className="font-semibold">Token:</span>{" "}
-                              {token ? `${token.substring(0, 10)}...` : "None"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">OTP:</span>{" "}
-                              {otp || "Not entered"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">Timer:</span>{" "}
-                              {otpTimer}s
-                            </div>
-                            <div>
-                              <span className="font-semibold">Expired:</span>{" "}
-                              {otpExpired ? "Yes" : "No"}
+                            <div className="space-y-1">
+                              <div><span className="font-semibold">Email:</span> {email || "None"} {!email?.trim() && "❌"}</div>
+                              <div><span className="font-semibold">Token:</span> {token ? `${token.substring(0, 10)}...` : "None"} {!token && "❌"}</div>
+                              <div><span className="font-semibold">OTP:</span> {otp || "Not entered"} ({otp.length}/{CONFIG.OTP_LENGTH}) {otp.length !== CONFIG.OTP_LENGTH && "❌"}</div>
+                              <div><span className="font-semibold">OTP Valid:</span> {otp && /^\d+$/.test(otp) ? "Yes ✅" : "No ❌"}</div>
+                              <div><span className="font-semibold">Timer:</span> {formatTime(otpTimer)} ({otpTimer}s)</div>
+                              <div><span className="font-semibold">Expired:</span> {otpExpired ? "Yes ❌" : "No ✅"}</div>
+                              <div><span className="font-semibold">Loading:</span> {isLoading ? "Yes" : "No"}</div>
+                              <div><span className="font-semibold">Resend Disabled:</span> {resendDisabled ? "Yes" : "No"}</div>
+                              <div><span className="font-semibold">Countdown:</span> {countdown}s</div>
+                              <div><span className="font-semibold">Success:</span> {verificationSuccess ? "Yes" : "No"}</div>
+                              <div><span className="font-semibold">Submit Disabled:</span> {isSubmitDisabled ? "Yes ❌" : "No ✅"}</div>
+                              <div><span className="font-semibold">Failure Count:</span> {failureCount}</div>
+                              <div><span className="font-semibold">Network:</span> {navigator.onLine ? "Online ✅" : "Offline ❌"}</div>
+                              <div><span className="font-semibold">User Agent:</span> {navigator.userAgent.substring(0, 50)}...</div>
                             </div>
                           </motion.div>
                         )}

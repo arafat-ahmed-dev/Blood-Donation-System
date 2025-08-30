@@ -1,6 +1,6 @@
 // app/api/auth/generateOTP/route.ts
 import { NextResponse } from "next/server";
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 import { OtpService } from "@/lib/otp";
 import prisma from "@/lib/prisma";
 import { sendOTPEmail } from "@/lib/email";
@@ -13,12 +13,23 @@ let redis: Redis | null = null;
 let otpService: OtpService;
 
 try {
-  redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
-  console.log("Redis connection initialized");
-  otpService = new OtpService(redis);
+  if (
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    otpService = new OtpService(redis);
+    console.log("Upstash Redis OTP service initialized");
+  } else {
+    console.log("No Redis credentials provided, using mock OTP service");
+    otpService = new OtpService(null);
+  }
 } catch (error) {
   console.warn("Failed to connect to Redis, using mock OTP service:", error);
-  otpService = new OtpService(null); // Use mock mode
+  otpService = new OtpService(null);
 }
 
 // Input validation schema
@@ -36,12 +47,11 @@ export async function POST(request: Request) {
 
     if (!validationResult.success) {
       return authErrors.validationError(
-        validationResult.error.errors[0]?.message || "Invalid email format"
+        validationResult.error.issues[0]?.message || "Invalid email format"
       );
     }
 
     const { email } = validationResult.data;
-
     // Check if user exists
     const isUserExists = await prisma.donor.findUnique({
       where: { email },

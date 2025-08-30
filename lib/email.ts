@@ -40,7 +40,7 @@ export async function sendOTPEmail(email: string, otp: string) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #dc2626;">LifeFlow</h1>
+          <h1 style="color: #dc2626;">Rokto Shetu</h1>
           <p style="color: #4b5563;">Blood Donation Management System</p>
         </div>
         <div style="background-color: #f9fafb; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
@@ -53,7 +53,7 @@ export async function sendOTPEmail(email: string, otp: string) {
         </div>
         <div style="text-align: center; color: #6b7280; font-size: 14px;">
           <p>If you didn't request this code, you can safely ignore this email.</p>
-          <p>© ${new Date().getFullYear()} LifeFlow Blood Donation System. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Rokto Shetu Blood Donation System. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -74,18 +74,18 @@ export async function sendWelcomeEmail(email: string, name: string) {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"LifeFlow Blood Donation" <${process.env.SMTP_USER}>`,
+    from: `"Rokto Shetu Blood Donation" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: "Welcome to LifeFlow Blood Donation System",
-    text: `Hello ${name},\n\nWelcome to LifeFlow! Thank you for joining our community of blood donors. Your contribution can help save lives.\n\nBest regards,\nThe LifeFlow Team`,
+    subject: "Welcome to Rokto Shetu Blood Donation System",
+    text: `Hello ${name},\n\nWelcome to Rokto Shetu! Thank you for joining our community of blood donors. Your contribution can help save lives.\n\nBest regards,\nThe Rokto Shetu Team`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #dc2626;">LifeFlow</h1>
+          <h1 style="color: #dc2626;">Rokto Shetu</h1>
           <p style="color: #4b5563;">Blood Donation Management System</p>
         </div>
         <div style="padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-          <h2 style="color: #111827; margin-top: 0;">Welcome to LifeFlow!</h2>
+          <h2 style="color: #111827; margin-top: 0;">Welcome to Rokto Shetu!</h2>
           <p style="color: #4b5563;">Hello ${name},</p>
           <p style="color: #4b5563;">Thank you for joining our community of blood donors. Your contribution can help save lives.</p>
           <div style="text-align: center; margin: 30px 0;">
@@ -94,10 +94,10 @@ export async function sendWelcomeEmail(email: string, name: string) {
             }/appointments" style="background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Schedule Your First Donation</a>
           </div>
           <p style="color: #4b5563;">If you have any questions, feel free to contact our support team.</p>
-          <p style="color: #4b5563;">Best regards,<br>The LifeFlow Team</p>
+          <p style="color: #4b5563;">Best regards,<br>The Rokto Shetu Team</p>
         </div>
         <div style="text-align: center; color: #6b7280; font-size: 14px;">
-          <p>© ${new Date().getFullYear()} LifeFlow Blood Donation System. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Rokto Shetu Blood Donation System. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -128,14 +128,14 @@ export async function sendAppointmentConfirmationEmail(
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"LifeFlow Blood Donation" <${process.env.SMTP_USER}>`,
+    from: `"Rokto Shetu Blood Donation" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Your Blood Donation Appointment Confirmation",
-    text: `Hello ${name},\n\nYour blood donation appointment has been confirmed.\n\nAppointment Details:\nID: ${appointmentDetails.id}\nDate: ${appointmentDetails.date}\nTime: ${appointmentDetails.time}\nLocation: ${appointmentDetails.location}\n\nThank you for your contribution!\n\nBest regards,\nThe LifeFlow Team`,
+    text: `Hello ${name},\n\nYour blood donation appointment has been confirmed.\n\nAppointment Details:\nID: ${appointmentDetails.id}\nDate: ${appointmentDetails.date}\nTime: ${appointmentDetails.time}\nLocation: ${appointmentDetails.location}\n\nThank you for your contribution!\n\nBest regards,\nThe Rokto Shetu Team`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #dc2626;">LifeFlow</h1>
+          <h1 style="color: #dc2626;">Rokto Shetu</h1>
           <p style="color: #4b5563;">Blood Donation Management System</p>
         </div>
         <div style="padding: 20px; border-radius: 5px; margin-bottom: 20px;">
@@ -160,10 +160,10 @@ export async function sendAppointmentConfirmationEmail(
           </div>
           
           <p style="color: #4b5563;">Thank you for your contribution!</p>
-          <p style="color: #4b5563;">Best regards,<br>The LifeFlow Team</p>
+          <p style="color: #4b5563;">Best regards,<br>The Rokto Shetu Team</p>
         </div>
         <div style="text-align: center; color: #6b7280; font-size: 14px;">
-          <p>© ${new Date().getFullYear()} LifeFlow Blood Donation System. All rights reserved.</p>
+          <p>© ${new Date().getFullYear()} Rokto Shetu Blood Donation System. All rights reserved.</p>
         </div>
       </div>
     `,
