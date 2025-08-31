@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthErrorToast } from "@/lib/auth-errors";
 
 // Define proper return types for functions

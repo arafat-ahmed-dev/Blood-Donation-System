@@ -7,7 +7,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { useDonations } from "@/hooks/useDonations";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useAuth } from "@/components/auth/auth-provider";
-import { useSession } from "next-auth/react";
 
 import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
 import { ProfileStats } from "@/components/profile/ProfileStats";
@@ -31,7 +30,7 @@ interface Appointment {
 
 export default function ProfileClient() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { data: session, status } = useSession();
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const { user, isLoading: profileLoading } = useProfile();
   const { donations, isLoading: donationsLoading } = useDonations(user?.id);
   const { appointments, isLoading: appointmentsLoading } = useAppointments(
@@ -46,12 +45,13 @@ export default function ProfileClient() {
     appointments: false,
     settings: false,
   });
+  console.log('Auth Status:', { isAuthenticated, authLoading });
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!authLoading && !isAuthenticated) {
       router.push("/auth?redirect=/profile");
     }
-  }, [status, router]);
+  }, [isAuthenticated, authLoading, router]);
 
   // Mark sections as loaded when their data is ready
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function ProfileClient() {
 
   // Show loading state for initial load or when switching to unloaded sections
   if (
-    status === "loading" ||
+    authLoading ||
     profileLoading ||
     !user ||
     (activeTab === "donations" && !loadedSections.donations) ||
@@ -110,8 +110,8 @@ export default function ProfileClient() {
   const eligibilityStatus = !user?.nextEligibleDate
     ? "Available"
     : new Date(user.nextEligibleDate) > new Date()
-    ? "Not Available"
-    : "Available";
+      ? "Not Available"
+      : "Available";
 
   return (
     <div className="flex flex-col md:flex-row gap-4 p-2 animate-in fade-in duration-500">

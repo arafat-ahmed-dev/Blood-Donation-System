@@ -105,7 +105,7 @@ export default function AboutPage() {
   const testimonials = [
     {
       quote:
-        "LifeFlow has revolutionized how we manage blood donations. Their platform is a game-changer.",
+        "Rokto Shetu has revolutionized how we manage blood donations. Their platform is a game-changer.",
       author: "Dr. Lisa Thompson",
       role: "Hospital Administrator",
       rating: 5,
@@ -130,7 +130,7 @@ export default function AboutPage() {
     {
       icon: Mail,
       title: "Email",
-      details: ["info@lifeflow.org", "support@lifeflow.org"],
+      details: ["info@roktoshetu.org", "support@roktoshetu.org"],
     },
     {
       icon: Phone,
@@ -162,7 +162,7 @@ export default function AboutPage() {
                 Connecting Lives Through Blood Donation
               </h1>
               <p className="text-lg text-white/90 mb-6">
-                LifeFlow is revolutionizing blood donation management through
+                roktoshetu is revolutionizing blood donation management through
                 technology, making it easier to save lives and build stronger
                 communities.
               </p>

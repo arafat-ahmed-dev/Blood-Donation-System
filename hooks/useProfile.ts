@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/components/auth/auth-provider";
 import { User } from "@/lib/store";
 import axios from "axios";
 

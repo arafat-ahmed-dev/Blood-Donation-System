@@ -16,11 +16,11 @@ import {
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { decrypt } from '@/lib/data-encryption-utils';
-import { useAuth } from '@/hooks/useAuth';
 import { useAuthErrorToast } from '@/lib/auth-errors';
 import axios from '@/lib/axios';
-import { AuthErrorCode } from '@/lib/api-error-handler';
+import { isAxiosError } from 'axios';
+import { CustomToast, verificationToasts, systemToasts } from '@/lib/custom-toast';
+import { useAuth } from "@/components/auth/auth-provider";
 
 // Configuration constants
 const CONFIG = {
@@ -69,316 +69,6 @@ const formatTime = (seconds: number): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-/**
- * TASK ROADMAP FOR EMAIL VERIFICATION PAGE
- * =====================================
- * 
- * 🏗️  STEP 1: SETUP & CONFIGURATION
- * --------------------------------
- * TODO: Import required React hooks and Next.js components
- *   - React: useState, useRef, useEffect, useCallback, useMemo
- *   - Next.js: useRouter, useSearchParams, Link
- *   - UI: Card, CardContent, CardFooter, Button, useToast
- *   - Icons: CheckCircle, ChevronRight, Clock, AlertCircle, Shield, Mail, Loader2
- *   - Utils: decrypt, useAuth, useAuthErrorToast, axios, AuthErrorHandler
- *   - Animation: motion, AnimatePresence
- * 
- * TODO: Define configuration constants
- *   - OTP_LENGTH: Number of digits in OTP (6)
- *   - OTP_EXPIRY_SECONDS: How long OTP is valid (300 = 5 minutes)
- *   - RESEND_COOLDOWN_SECONDS: Time before user can resend (60 seconds)
- *   - AUTO_FOCUS_DELAY: Delay before auto-focusing first input
- *   - SUCCESS_REDIRECT_DELAY: Time to show success animation
- * 
- * 🎨 STEP 2: ANIMATION VARIANTS
- * ----------------------------
- * TODO: Create framer-motion animation variants
- *   - fadeIn: For page transitions
- *   - inputVariants: For OTP input states (focused, filled, error)
- *   - successIconVariants: For success animation
- *   - pulseVariant: For timer warnings
- * 
- * 🪝 STEP 3: CUSTOM HOOKS
- * ----------------------
- * TODO: Create useTripleClick hook
- *   - Track click timestamps
- *   - Detect 3 clicks within time window
- *   - Return onClick handler and reset function
- * 
- * TODO: Create useOtpInput hook
- *   - Manage OTP state and input refs
- *   - Handle input changes, focus, blur, keydown
- *   - Support paste functionality
- *   - Auto-advance to next input
- *   - Provide clear and focus methods
- * 
- * 🔧 STEP 4: UTILITY FUNCTIONS
- * ----------------------------
- * TODO: Create error handling utility
- *   - Handle different error types (Axios, Network, Validation)
- *   - Format error messages for user display
- *   - Log errors for debugging
- * 
- * TODO: Create network connectivity checker
- *   - Check if device is online
- *   - Test actual server connectivity
- *   - Handle timeout scenarios
- * 
- * TODO: Create timer formatting function
- *   - Convert seconds to MM:SS format
- *   - Handle edge cases (0, negative numbers)
- * 
- * 🏛️ STEP 5: MAIN COMPONENT STRUCTURE
- * ----------------------------------
- * TODO: Setup component state
- *   - isLoading: Boolean for API calls
- *   - resendDisabled: Boolean for resend button
- *   - countdown: Number for resend countdown
- *   - otpTimer: Number for OTP expiration
- *   - otpExpired: Boolean for OTP expiration state
- *   - verificationSuccess: Boolean for success state
- *   - lastError: String for error messages
- *   - showDebug: Boolean for debug panel
- *   - failureCount: Number for tracking failures
- * 
- * TODO: Extract URL parameters
- *   - email: User's email from query params
- *   - token: Temporary token for verification
- *   - redirectPath: Where to redirect after success
- * 
- * TODO: Initialize custom hooks
- *   - useOtpInput for OTP management
- *   - useTripleClick for debug panel
- *   - useAuth for authentication
- *   - useRouter and useSearchParams for navigation
- * 
- * TODO: Create memoized values
- *   - timerProgress: Calculate progress bar percentage
- *   - isSubmitDisabled: Determine if submit should be disabled
- * 
- * ⏰ STEP 6: TIMER EFFECTS
- * -----------------------
- * TODO: Setup OTP expiration timer
- *   - Start countdown from OTP_EXPIRY_SECONDS
- *   - Update every second
- *   - Show toast when expired
- *   - Set otpExpired to true when reaches 0
- * 
- * TODO: Setup resend cooldown timer
- *   - Start countdown from RESEND_COOLDOWN_SECONDS
- *   - Update every second
- *   - Enable resend button when reaches 0
- * 
- * TODO: Auto-focus first input
- *   - Focus first OTP input after component mounts
- *   - Add delay for better UX
- * 
- * TODO: Cleanup timers
- *   - Clear intervals on component unmount
- *   - Prevent memory leaks
- * 
- * 🔐 STEP 7: VALIDATION LOGIC
- * --------------------------
- * TODO: Validate URL parameters
- *   - Check if email and token are present
- *   - Redirect to auth page if missing
- *   - Show appropriate error messages
- * 
- * TODO: Validate OTP input
- *   - Check if OTP is 6 digits
- *   - Ensure only numeric characters
- *   - Validate before sending to API
- * 
- * TODO: Validate token
- *   - Decrypt temporary token
- *   - Compare with email
- *   - Handle invalid tokens gracefully
- * 
- * 📨 STEP 8: API INTEGRATION
- * -------------------------
- * TODO: Implement resend OTP function
- *   - Call /api/auth/generateOTP endpoint
- *   - Handle success response
- *   - Update timer and clear inputs
- *   - Handle errors with user feedback
- *   - Update URL if new token received
- * 
- * TODO: Implement OTP verification function
- *   - Validate inputs before API call
- *   - Check network connectivity
- *   - Call /api/auth/verifyOTP endpoint
- *   - Handle success (login and redirect)
- *   - Handle various error scenarios:
- *     * 400: Invalid/expired OTP
- *     * 401: Unauthorized
- *     * 404: Service not found
- *     * 429: Rate limiting
- *     * 500+: Server errors
- *     * Network: Connection issues
- * 
- * 🎯 STEP 9: ERROR HANDLING
- * ------------------------
- * TODO: Implement comprehensive error handling
- *   - Parse different error response formats
- *   - Show user-friendly error messages
- *   - Provide actionable next steps
- *   - Auto-clear inputs on certain errors
- *   - Track failure count for progressive help
- * 
- * TODO: Add toast notifications
- *   - Success messages
- *   - Error messages with context
- *   - Tips and suggestions
- *   - Different durations based on importance
- * 
- * TODO: Handle network issues
- *   - Detect offline state
- *   - Show appropriate messages
- *   - Suggest solutions
- * 
- * 🎨 STEP 10: UI COMPONENTS
- * ------------------------
- * TODO: Build success animation screen
- *   - Animated check icon
- *   - Success message
- *   - Loading spinner for redirect
- *   - Smooth transitions
- * 
- * TODO: Build verification form
- *   - Email display with formatting
- *   - Timer progress bar
- *   - OTP input grid (6 inputs)
- *   - Resend button with countdown
- *   - Submit button with states
- *   - Helper text for guidance
- * 
- * TODO: Build OTP input components
- *   - Individual digit inputs
- *   - Focus management
- *   - Visual feedback (focused, filled, error)
- *   - Auto-advance functionality
- *   - Paste support
- *   - Accessibility features
- * 
- * TODO: Build timer display
- *   - Progress bar visualization
- *   - Time remaining in MM:SS format
- *   - Warning states (< 60 seconds)
- *   - Expiration indicators
- * 
- * TODO: Build error display components
- *   - Inline error messages
- *   - Toast notifications
- *   - Progressive help after failures
- *   - Recovery suggestions
- * 
- * 🔧 STEP 11: DEBUG FEATURES
- * -------------------------
- * TODO: Implement debug panel
- *   - Triple-click to toggle visibility
- *   - Show all component state
- *   - Display validation status
- *   - Show network information
- *   - Include error details
- *   - Format for readability
- * 
- * TODO: Add development helpers
- *   - Console logging for debugging
- *   - State visualization
- *   - API request/response logging
- * 
- * ♿ STEP 12: ACCESSIBILITY
- * -----------------------
- * TODO: Add ARIA labels and descriptions
- *   - Label each OTP input
- *   - Describe the verification process
- *   - Announce state changes
- * 
- * TODO: Keyboard navigation
- *   - Tab order management
- *   - Arrow key navigation between inputs
- *   - Enter key submission
- *   - Escape key actions
- * 
- * TODO: Screen reader support
- *   - Proper heading structure
- *   - Live regions for dynamic content
- *   - Alternative text for icons
- * 
- * 📱 STEP 13: RESPONSIVE DESIGN
- * ---------------------------
- * TODO: Mobile optimization
- *   - Touch-friendly input sizes
- *   - Numeric keyboard on mobile
- *   - Proper viewport handling
- *   - Responsive spacing and typography
- * 
- * TODO: Cross-browser compatibility
- *   - Test input behaviors
- *   - Fallbacks for unsupported features
- *   - Consistent styling
- * 
- * 🧪 STEP 14: TESTING CONSIDERATIONS
- * ---------------------------------
- * TODO: Manual testing scenarios
- *   - Valid OTP submission
- *   - Invalid OTP handling
- *   - Expired OTP handling
- *   - Network failure scenarios
- *   - Resend functionality
- *   - Timer behaviors
- *   - Accessibility features
- *   - Mobile responsiveness
- * 
- * TODO: Edge cases to handle
- *   - Rapid clicking/typing
- *   - Copy-paste behaviors
- *   - Browser back/forward
- *   - Page refresh during process
- *   - Multiple tab scenarios
- * 
- * 🚀 STEP 15: PERFORMANCE OPTIMIZATION
- * -----------------------------------
- * TODO: Optimize re-renders
- *   - Use useMemo for expensive calculations
- *   - Use useCallback for event handlers
- *   - Minimize unnecessary state updates
- * 
- * TODO: Code splitting and lazy loading
- *   - Dynamic imports for heavy components
- *   - Optimize bundle size
- * 
- * 🔒 STEP 16: SECURITY CONSIDERATIONS
- * ----------------------------------
- * TODO: Input sanitization
- *   - Validate all user inputs
- *   - Prevent XSS attacks
- *   - Handle malicious paste content
- * 
- * TODO: Token security
- *   - Proper token validation
- *   - Secure storage handling
- *   - Expiration checks
- * 
- * 📊 STEP 17: ANALYTICS & MONITORING
- * ---------------------------------
- * TODO: User behavior tracking
- *   - Track verification attempts
- *   - Monitor failure rates
- *   - Measure completion times
- * 
- * TODO: Error monitoring
- *   - Log client-side errors
- *   - Track API failures
- *   - Monitor performance metrics
- * 
- * IMPLEMENTATION PRIORITY:
- * 1. Steps 1-5: Basic structure and state
- * 2. Steps 6-8: Core functionality
- * 3. Steps 9-10: Error handling and UI
- * 4. Steps 11-12: Debug and accessibility
- * 5. Steps 13-17: Polish and optimization
- */
 
 export default function VerifyOtpForm() {
   // Router and search params
@@ -386,7 +76,6 @@ export default function VerifyOtpForm() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const { showAuthError } = useAuthErrorToast();
-  const { login } = useAuth();
 
   // Extract URL parameters
   const email = searchParams.get('email') || '';
@@ -405,7 +94,7 @@ export default function VerifyOtpForm() {
   const [failureCount, setFailureCount] = useState(0);
   const [otp, setOtp] = useState('');
   const [focusedInput, setFocusedInput] = useState<number | null>(null);
-
+  const { login } = useAuth();
   // Refs
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -469,12 +158,39 @@ export default function VerifyOtpForm() {
       setOtpExpired(false);
       setOtp('');
 
-      toast({
-        title: "Verification code sent",
-        description: "A new verification code has been sent to your email.",
-      });
+      verificationToasts.codeSent();
+      // Resend Otp
+      const sentOTP = await axios.post('/api/auth/generateOTP', { email });
+      if (sentOTP?.data?.otp) {
+        verificationToasts.codeSent();
+      }
     } catch (error) {
-      showAuthError('otp', 'Failed to resend verification code');
+      console.log("Resend error:", error);
+
+      let errorMessage = 'Failed to resend verification code. Please try again.';
+      let errorTitle = 'Resend Failed';
+
+      if (isAxiosError(error)) {
+        if (error.response?.data?.error?.message) {
+          errorMessage = error.response.data.error.message;
+        } else if (error.response?.status === 429) {
+          verificationToasts.tooManyAttempts();
+          return;
+        } else if (error.response?.status === 404) {
+          CustomToast.error({
+            title: 'User Not Found',
+            description: 'We couldn\'t find your account. Please try registering again.',
+            context: 'verification',
+          });
+          return;
+        }
+      }
+
+      CustomToast.error({
+        title: 'Resend Failed',
+        description: errorMessage,
+        context: 'verification',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -482,6 +198,7 @@ export default function VerifyOtpForm() {
 
   const onSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting OTP:", otp);
 
     if (isSubmitDisabled) return;
 
@@ -489,19 +206,92 @@ export default function VerifyOtpForm() {
       setIsLoading(true);
       setLastError('');
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // On success
+      const response = await axios.post('/api/auth/verifyOTP', { email, otp });
+      console.log(response);
+
+      // Show success toast
+      verificationToasts.verificationSuccess();
 
       setVerificationSuccess(true);
-
-      // Redirect after success delay
-      setTimeout(() => {
-        router.push(redirectPath);
-      }, CONFIG.SUCCESS_REDIRECT_DELAY);
+      const signInResponse = await login(email, redirectPath);
+      return null;
 
     } catch (error) {
+      console.log("Full error object:", error);
+
       setFailureCount(prev => prev + 1);
-      showAuthError('otp', 'Verification failed. Please try again.');
+
+      // Extract error message from axios error response
+      let errorMessage = 'Verification failed. Please try again.';
+      let errorTitle = 'Verification Failed';
+      let isNetworkError = false;
+
+      if (isAxiosError(error)) {
+        console.log("Axios error response:", error.response);
+        console.log("Axios error status:", error.response?.status);
+        console.log("Axios error data:", error.response?.data);
+
+        if (error.response?.data) {
+          // Handle standardized error responses from your API
+          if (error.response.data.error?.message) {
+            errorMessage = error.response.data.error.message;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          }
+
+          // Handle specific status codes with custom titles and messages
+          switch (error.response.status) {
+            case 400:
+              if (error.response.data.error?.message?.includes('Invalid or expired')) {
+                verificationToasts.codeExpired();
+                return;
+              } else if (error.response.data.error?.message?.includes('required')) {
+                CustomToast.error({
+                  title: 'Missing Information',
+                  description: 'Please enter both email and verification code.',
+                  context: 'verification',
+                });
+                return;
+              } else {
+                verificationToasts.codeInvalid();
+                return;
+              }
+            case 404:
+              CustomToast.error({
+                title: 'User Not Found',
+                description: 'We couldn\'t find an account with this email. Please check your email or register first.',
+                context: 'verification',
+              });
+              return;
+            case 429:
+              verificationToasts.tooManyAttempts();
+              return;
+            case 500:
+              systemToasts.serverError();
+              return;
+          }
+        } else if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK') {
+          systemToasts.networkError();
+          return;
+        }
+      }
+
+      console.log("Final error message:", errorMessage);
+
+      // Fallback for any unhandled errors
+      CustomToast.error({
+        title: 'Verification Failed',
+        description: errorMessage,
+        context: 'verification',
+      });
+
+      // Still update lastError for debug panel
+      setLastError(errorMessage);
+
+      // Don't call showAuthError since we're handling the toast ourselves
     } finally {
       setIsLoading(false);
     }
@@ -519,8 +309,9 @@ export default function VerifyOtpForm() {
         setOtpTimer(prev => prev - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (otpTimer === 0) {
+    } else if (otpTimer === 0 && !otpExpired) {
       setOtpExpired(true);
+      verificationToasts.codeExpired();
     }
   }, [otpTimer, otpExpired]);
 
@@ -727,11 +518,13 @@ export default function VerifyOtpForm() {
                               pattern="[0-9]"
                               maxLength={1}
                               className="w-full h-12 md:h-14 text-center text-lg md:text-xl font-bold border rounded-lg transition-all focus:outline-none"
+                              value={otp[index] || ""}
                               onChange={(e) =>
                                 handleInputChange(index, e.target.value)
                               }
                               onKeyDown={(e) => handleKeyDown(index, e)}
                               onFocus={() => handleInputFocus(index)}
+                              onPaste={handlePaste}
                               onBlur={handleInputBlur}
                               autoComplete={
                                 index === 0 ? "one-time-code" : "off"

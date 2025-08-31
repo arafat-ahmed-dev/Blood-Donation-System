@@ -11,7 +11,9 @@ export class OtpService {
     this.mockMode = !redisClient;
 
     if (this.mockMode) {
-      console.warn("OTP Service running in mock mode - not for production use");
+      console.warn(
+        "⚠️ OTP Service running in mock mode - not for production use"
+      );
     }
   }
 
@@ -20,12 +22,15 @@ export class OtpService {
 
     if (this.mockMode) {
       this.mockOtpStore.set(this.otpKey(email), otp);
-      // Set timeout to delete mock OTP after expiry
+      // Auto-expire mock OTP
       setTimeout(() => {
         this.mockOtpStore.delete(this.otpKey(email));
       }, this.otpExpirySeconds * 1000);
     } else if (this.redis) {
-      await this.redis.setex(this.otpKey(email), this.otpExpirySeconds, otp);
+      // Ensure we store as string
+      await this.redis.set(this.otpKey(email), otp, {
+        ex: this.otpExpirySeconds,
+      });
     } else {
       throw new Error("Redis client not available and not in mock mode");
     }
@@ -35,27 +40,35 @@ export class OtpService {
 
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     let storedOtp: string | null = null;
-
+    console.log("Provided OTP ", otp);
+    console.log("Provided EMAIL ", email);
+    
     if (this.mockMode) {
       storedOtp = this.mockOtpStore.get(this.otpKey(email)) || null;
     } else if (this.redis) {
-      storedOtp = await this.redis.get(this.otpKey(email));
+      const redisOtp = await this.redis.get(this.otpKey(email));
+      storedOtp = redisOtp ? String(redisOtp) : null; // Convert to string
     } else {
       throw new Error("Redis client not available and not in mock mode");
     }
+    console.log("Stored OTP", storedOtp);
+    
+    if (storedOtp) {
+      const trimmedStoredOtp = storedOtp.trim();
+      const trimmedProvidedOtp = otp.trim();
 
-    if (storedOtp && storedOtp === otp) {
-      if (this.mockMode) {
-        this.mockOtpStore.delete(this.otpKey(email));
-      } else if (this.redis) {
-        await this.redis.del(this.otpKey(email)); // Invalidate OTP after successful verification
+      if (trimmedStoredOtp === trimmedProvidedOtp) {
+        if (this.mockMode) {
+          this.mockOtpStore.delete(this.otpKey(email));
+        } else if (this.redis) {
+          await this.redis.del(this.otpKey(email)); // Invalidate OTP after successful verification
+        }
+        return true;
       }
-      return true;
     }
 
     return false;
   }
-
   private otpKey(email: string): string {
     return `otp:${email}`;
   }

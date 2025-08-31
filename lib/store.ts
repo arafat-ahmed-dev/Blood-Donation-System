@@ -1,168 +1,182 @@
 // Client-side data store using localStorage
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 // Types
 export type User = {
-  id: string
-  name: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  upazila: string
-  zip: string
-  bloodType: string
-  dateOfBirth: string
-  lastDonationDate?: string
-  nextEligibleDate?: string
-  donorLevel: "Bronze" | "Silver" | "Gold" | "Platinum"
-  totalDonations: number
-  isAdmin: boolean
-  image?: string
-}
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  upazila: string;
+  zip: string;
+  bloodType: string;
+  dateOfBirth: string;
+  lastDonationDate?: string;
+  nextEligibleDate?: string;
+  donorLevel: "Bronze" | "Silver" | "Gold" | "Platinum";
+  totalDonations: number;
+  isAdmin: boolean;
+  image?: string;
+};
 
 export type Donation = {
-  id: string
-  userId: string
-  date: string
-  location: string
-  bloodType: string
-  units: number
-  status: "Scheduled" | "Completed" | "Cancelled" | "Processing"
-}
+  id: string;
+  userId: string;
+  date: string;
+  location: string;
+  bloodType: string;
+  units: number;
+  status: "Scheduled" | "Completed" | "Cancelled" | "Processing";
+};
 
 export type Appointment = {
-  id: string
-  userId: string
-  date: string
-  time: string
-  location: string
-  status: "Confirmed" | "Pending" | "Cancelled" | "Completed"
-}
+  id: string;
+  userId: string;
+  date: string;
+  time: string;
+  location: string;
+  status: "Confirmed" | "Pending" | "Cancelled" | "Completed";
+};
 
 export type BloodInventory = {
-  type: string
-  level: number
-  status: "Adequate" | "Low" | "Critical"
-  units: number
-}
+  type: string;
+  level: number;
+  status: "Adequate" | "Low" | "Critical";
+  units: number;
+};
 
 export type BloodRequest = {
-  id: string
-  hospital: string
-  bloodType: string
-  units: number
-  urgency: "Critical" | "High" | "Medium" | "Low"
-  requestedDate: string
-  status: "Pending" | "Processing" | "Fulfilled" | "Cancelled"
-}
+  id: string;
+  hospital: string;
+  bloodType: string;
+  units: number;
+  urgency: "Critical" | "High" | "Medium" | "Low";
+  requestedDate: string;
+  status: "Pending" | "Processing" | "Fulfilled" | "Cancelled";
+};
 
 export type Notification = {
-  id: string
-  userId: string
-  title: string
-  message: string
-  date: string
-  read: boolean
-  type: "Appointment" | "Eligibility" | "Urgent" | "Achievement" | "System"
-}
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+  type: "Appointment" | "Eligibility" | "Urgent" | "Achievement" | "System";
+};
 
 export type Achievement = {
-  id: string
-  name: string
-  description: string
-  icon: string
-  unlocked: boolean
-  date?: string
-  progress?: number
-}
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  date?: string;
+  progress?: number;
+};
 
 export type HealthRecord = {
-  userId: string
-  date: string
-  hemoglobin: string
-  bloodPressure: string
-  pulse: string
-  weight: string
-  notes: string
-}
+  userId: string;
+  date: string;
+  hemoglobin: string;
+  bloodPressure: string;
+  pulse: string;
+  weight: string;
+  notes: string;
+};
 
 export type DonationCenter = {
-  id: string
-  name: string
-  address: string
-  city: string
-  upazila: string
-  zip: string
-  phone: string
-  hours: string
-  waitTime: string
-  distance: string
-  appointments: boolean
-  walkIns: boolean
-  status: "Open Now" | "Closed"
-}
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  upazila: string;
+  zip: string;
+  phone: string;
+  hours: string;
+  waitTime: string;
+  distance: string;
+  appointments: boolean;
+  walkIns: boolean;
+  status: "Open Now" | "Closed";
+};
 
 // Store interface
 interface StoreState {
   // Auth
-  currentUser: User | null
-  isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; message: string }>
+  currentUser: User | null;
+  isAuthenticated: boolean;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; message: string }>;
   register: (
-    userData: Omit<User, "id" | "isAdmin" | "donorLevel" | "totalDonations">,
-  ) => Promise<{ success: boolean; message: string }>
-  logout: () => void
+    userData: Omit<User, "id" | "isAdmin" | "donorLevel" | "totalDonations">
+  ) => Promise<{ success: boolean; message: string }>;
+  logout: () => void;
 
   // Users
-  users: User[]
-  addUser: (user: User) => void
-  updateUser: (userId: string, userData: Partial<User>) => void
+  users: User[];
+  addUser: (user: User) => void;
+  updateUser: (userId: string, userData: Partial<User>) => void;
 
   // Donations
-  donations: Donation[]
-  addDonation: (donation: Omit<Donation, "id">) => void
-  updateDonation: (donationId: string, data: Partial<Donation>) => void
-  getDonationsByUser: (userId: string) => Donation[]
+  donations: Donation[];
+  addDonation: (donation: Omit<Donation, "id">) => void;
+  updateDonation: (donationId: string, data: Partial<Donation>) => void;
+  getDonationsByUser: (userId: string) => Donation[];
 
   // Appointments
-  appointments: Appointment[]
-  addAppointment: (appointment: Omit<Appointment, "id">) => void
-  updateAppointment: (appointmentId: string, data: Partial<Appointment>) => void
-  getAppointmentsByUser: (userId: string) => Appointment[]
+  appointments: Appointment[];
+  addAppointment: (appointment: Omit<Appointment, "id">) => void;
+  updateAppointment: (
+    appointmentId: string,
+    data: Partial<Appointment>
+  ) => void;
+  getAppointmentsByUser: (userId: string) => Appointment[];
 
   // Blood Inventory
-  bloodInventory: BloodInventory[]
-  updateBloodInventory: (bloodType: string, data: Partial<BloodInventory>) => void
+  bloodInventory: BloodInventory[];
+  updateBloodInventory: (
+    bloodType: string,
+    data: Partial<BloodInventory>
+  ) => void;
 
   // Blood Requests
-  bloodRequests: BloodRequest[]
-  addBloodRequest: (request: Omit<BloodRequest, "id">) => void
-  updateBloodRequest: (requestId: string, data: Partial<BloodRequest>) => void
+  bloodRequests: BloodRequest[];
+  addBloodRequest: (request: Omit<BloodRequest, "id">) => void;
+  updateBloodRequest: (requestId: string, data: Partial<BloodRequest>) => void;
 
   // Notifications
-  notifications: Notification[]
-  addNotification: (notification: Omit<Notification, "id" | "date" | "read">) => void
-  markNotificationAsRead: (notificationId: string) => void
-  getUserNotifications: (userId: string) => Notification[]
+  notifications: Notification[];
+  addNotification: (
+    notification: Omit<Notification, "id" | "date" | "read">
+  ) => void;
+  markNotificationAsRead: (notificationId: string) => void;
+  getUserNotifications: (userId: string) => Notification[];
 
   // Achievements
-  achievements: Achievement[]
-  updateAchievement: (achievementId: string, data: Partial<Achievement>) => void
-  getUserAchievements: (userId: string) => Achievement[]
+  achievements: Achievement[];
+  updateAchievement: (
+    achievementId: string,
+    data: Partial<Achievement>
+  ) => void;
+  getUserAchievements: (userId: string) => Achievement[];
 
   // Health Records
-  healthRecords: HealthRecord[]
-  addHealthRecord: (record: HealthRecord) => void
-  getUserHealthRecords: (userId: string) => HealthRecord[]
+  healthRecords: HealthRecord[];
+  addHealthRecord: (record: HealthRecord) => void;
+  getUserHealthRecords: (userId: string) => HealthRecord[];
 
   // Donation Centers
-  donationCenters: DonationCenter[]
+  donationCenters: DonationCenter[];
 }
 
 // Generate a unique ID
-const generateId = () => Math.random().toString(36).substring(2, 9)
+const generateId = () => Math.random().toString(36).substring(2, 9);
 
 // Mock data for initial upazila
 const mockBloodInventory: BloodInventory[] = [
@@ -174,7 +188,7 @@ const mockBloodInventory: BloodInventory[] = [
   { type: "AB-", level: 25, status: "Critical", units: 10 },
   { type: "O+", level: 50, status: "Low", units: 90 },
   { type: "O-", level: 20, status: "Critical", units: 25 },
-]
+];
 
 const mockDonationCenters: DonationCenter[] = [
   {
@@ -222,7 +236,7 @@ const mockDonationCenters: DonationCenter[] = [
     walkIns: true,
     distance: "3.8 miles",
   },
-]
+];
 
 // Create the store
 export const useStore = create<StoreState>()(
@@ -234,29 +248,29 @@ export const useStore = create<StoreState>()(
 
       login: async (email, password) => {
         // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
-        const users = get().users
-        const user = users.find((u) => u.email === email)
+        const users = get().users;
+        const user = users.find((u) => u.email === email);
 
         if (user) {
           // In a real app, you'd check the password hash here
-          set({ currentUser: user, isAuthenticated: true })
-          return { success: true, message: "Login successful" }
+          set({ currentUser: user, isAuthenticated: true });
+          return { success: true, message: "Login successful" };
         }
 
-        return { success: false, message: "Invalid email or password" }
+        return { success: false, message: "Invalid email or password" };
       },
 
       register: async (userData) => {
         // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
-        const users = get().users
-        const existingUser = users.find((u) => u.email === userData.email)
+        const users = get().users;
+        const existingUser = users.find((u) => u.email === userData.email);
 
         if (existingUser) {
-          return { success: false, message: "Email already in use" }
+          return { success: false, message: "Email already in use" };
         }
 
         const newUser: User = {
@@ -265,9 +279,9 @@ export const useStore = create<StoreState>()(
           isAdmin: false,
           donorLevel: "Bronze",
           totalDonations: 0,
-        }
+        };
 
-        set({ users: [...users, newUser] })
+        set({ users: [...users, newUser] });
 
         // Create default achievements for the user
         const defaultAchievements: Achievement[] = [
@@ -311,17 +325,17 @@ export const useStore = create<StoreState>()(
             unlocked: false,
             progress: 0,
           },
-        ]
+        ];
 
         set({
           achievements: [...get().achievements, ...defaultAchievements],
-        })
+        });
 
-        return { success: true, message: "Registration successful" }
+        return { success: true, message: "Registration successful" };
       },
 
       logout: () => {
-        set({ currentUser: null, isAuthenticated: false })
+        set({ currentUser: null, isAuthenticated: false });
       },
 
       // Users
@@ -329,7 +343,7 @@ export const useStore = create<StoreState>()(
         {
           id: "admin1",
           name: "Admin User",
-          email: "admin@lifeflow.com",
+          email: "admin@roktoshetu.com",
           phone: "(555) 123-4567",
           address: "123 Admin St",
           city: "Cityville",
@@ -365,13 +379,15 @@ export const useStore = create<StoreState>()(
       ],
 
       addUser: (user) => {
-        set({ users: [...get().users, user] })
+        set({ users: [...get().users, user] });
       },
 
       updateUser: (userId, userData) => {
         set({
-          users: get().users.map((user) => (user.id === userId ? { ...user, ...userData } : user)),
-        })
+          users: get().users.map((user) =>
+            user.id === userId ? { ...user, ...userData } : user
+          ),
+        });
       },
 
       // Donations
@@ -427,29 +443,31 @@ export const useStore = create<StoreState>()(
         const newDonation = {
           ...donation,
           id: `DON-${Math.floor(1000 + Math.random() * 9000)}`,
-        }
+        };
 
-        set({ donations: [...get().donations, newDonation] })
+        set({ donations: [...get().donations, newDonation] });
 
         // Update user's total donations
-        const user = get().users.find((u) => u.id === donation.userId)
+        const user = get().users.find((u) => u.id === donation.userId);
         if (user && donation.status === "Completed") {
           get().updateUser(user.id, {
             totalDonations: user.totalDonations + 1,
             lastDonationDate: donation.date,
-          })
+          });
 
           // Check and update achievements
-          const userAchievements = get().getUserAchievements(user.id)
+          const userAchievements = get().getUserAchievements(user.id);
 
           // First Time Donor
-          const firstTimeDonor = userAchievements.find((a) => a.name === "First Time Donor")
+          const firstTimeDonor = userAchievements.find(
+            (a) => a.name === "First Time Donor"
+          );
           if (firstTimeDonor && !firstTimeDonor.unlocked) {
             get().updateAchievement(firstTimeDonor.id, {
               unlocked: true,
               date: new Date().toISOString().split("T")[0],
               progress: 100,
-            })
+            });
 
             // Add notification
             get().addNotification({
@@ -457,20 +475,24 @@ export const useStore = create<StoreState>()(
               title: "Achievement Unlocked!",
               message: "You've earned the First Time Donor badge.",
               type: "Achievement",
-            })
+            });
           }
 
           // Regular Donor
-          const regularDonor = userAchievements.find((a) => a.name === "Regular Donor")
+          const regularDonor = userAchievements.find(
+            (a) => a.name === "Regular Donor"
+          );
           if (regularDonor) {
-            const progress = Math.min((user.totalDonations / 5) * 100, 100)
-            const wasUnlocked = regularDonor.unlocked
+            const progress = Math.min((user.totalDonations / 5) * 100, 100);
+            const wasUnlocked = regularDonor.unlocked;
 
             get().updateAchievement(regularDonor.id, {
               progress,
               unlocked: user.totalDonations >= 5,
-              ...(user.totalDonations >= 5 && !wasUnlocked ? { date: new Date().toISOString().split("T")[0] } : {}),
-            })
+              ...(user.totalDonations >= 5 && !wasUnlocked
+                ? { date: new Date().toISOString().split("T")[0] }
+                : {}),
+            });
 
             if (user.totalDonations >= 5 && !wasUnlocked) {
               get().addNotification({
@@ -478,15 +500,20 @@ export const useStore = create<StoreState>()(
                 title: "Achievement Unlocked!",
                 message: "You've earned the Regular Donor badge.",
                 type: "Achievement",
-              })
+              });
             }
           }
 
           // Lifesaver
-          const lifesaver = userAchievements.find((a) => a.name === "Lifesaver")
+          const lifesaver = userAchievements.find(
+            (a) => a.name === "Lifesaver"
+          );
           if (lifesaver) {
-            const progress = Math.min(((user.totalDonations * 3) / 15) * 100, 100)
-            const wasUnlocked = lifesaver.unlocked
+            const progress = Math.min(
+              ((user.totalDonations * 3) / 15) * 100,
+              100
+            );
+            const wasUnlocked = lifesaver.unlocked;
 
             get().updateAchievement(lifesaver.id, {
               progress,
@@ -494,7 +521,7 @@ export const useStore = create<StoreState>()(
               ...(user.totalDonations * 3 >= 15 && !wasUnlocked
                 ? { date: new Date().toISOString().split("T")[0] }
                 : {}),
-            })
+            });
 
             if (user.totalDonations * 3 >= 15 && !wasUnlocked) {
               get().addNotification({
@@ -502,20 +529,20 @@ export const useStore = create<StoreState>()(
                 title: "Achievement Unlocked!",
                 message: "You've earned the Lifesaver badge.",
                 type: "Achievement",
-              })
+              });
             }
           }
         }
 
         // Calculate next eligible date (56 days after donation)
         if (donation.status === "Completed") {
-          const donationDate = new Date(donation.date)
-          const nextEligibleDate = new Date(donationDate)
-          nextEligibleDate.setDate(donationDate.getDate() + 56)
+          const donationDate = new Date(donation.date);
+          const nextEligibleDate = new Date(donationDate);
+          nextEligibleDate.setDate(donationDate.getDate() + 56);
 
           get().updateUser(donation.userId, {
             nextEligibleDate: nextEligibleDate.toISOString().split("T")[0],
-          })
+          });
 
           // Add notification for next eligible date
           get().addNotification({
@@ -523,20 +550,20 @@ export const useStore = create<StoreState>()(
             title: "Thank You for Donating!",
             message: `You'll be eligible to donate again on ${nextEligibleDate.toLocaleDateString()}.`,
             type: "Eligibility",
-          })
+          });
         }
       },
 
       updateDonation: (donationId, data) => {
         set({
           donations: get().donations.map((donation) =>
-            donation.id === donationId ? { ...donation, ...data } : donation,
+            donation.id === donationId ? { ...donation, ...data } : donation
           ),
-        })
+        });
       },
 
       getDonationsByUser: (userId) => {
-        return get().donations.filter((donation) => donation.userId === userId)
+        return get().donations.filter((donation) => donation.userId === userId);
       },
 
       // Appointments
@@ -555,9 +582,9 @@ export const useStore = create<StoreState>()(
         const newAppointment = {
           ...appointment,
           id: `APT-${Math.floor(2000 + Math.random() * 9000)}`,
-        }
+        };
 
-        set({ appointments: [...get().appointments, newAppointment] })
+        set({ appointments: [...get().appointments, newAppointment] });
 
         // Add notification
         get().addNotification({
@@ -565,15 +592,19 @@ export const useStore = create<StoreState>()(
           title: "Appointment Scheduled",
           message: `Your appointment has been scheduled for ${appointment.date} at ${appointment.time}.`,
           type: "Appointment",
-        })
+        });
       },
 
       updateAppointment: (appointmentId, data) => {
-        const appointment = get().appointments.find((a) => a.id === appointmentId)
+        const appointment = get().appointments.find(
+          (a) => a.id === appointmentId
+        );
 
         set({
-          appointments: get().appointments.map((appt) => (appt.id === appointmentId ? { ...appt, ...data } : appt)),
-        })
+          appointments: get().appointments.map((appt) =>
+            appt.id === appointmentId ? { ...appt, ...data } : appt
+          ),
+        });
 
         // Add notification for status change
         if (appointment && data.status && data.status !== appointment.status) {
@@ -582,19 +613,21 @@ export const useStore = create<StoreState>()(
             Cancelled: "Your appointment has been cancelled.",
             Completed: "Thank you for completing your appointment.",
             Pending: "Your appointment is pending confirmation.",
-          }
+          };
 
           get().addNotification({
             userId: appointment.userId,
             title: `Appointment ${data.status}`,
             message: messages[data.status],
             type: "Appointment",
-          })
+          });
         }
       },
 
       getAppointmentsByUser: (userId) => {
-        return get().appointments.filter((appointment) => appointment.userId === userId)
+        return get().appointments.filter(
+          (appointment) => appointment.userId === userId
+        );
       },
 
       // Blood Inventory
@@ -602,15 +635,19 @@ export const useStore = create<StoreState>()(
 
       updateBloodInventory: (bloodType, data) => {
         set({
-          bloodInventory: get().bloodInventory.map((item) => (item.type === bloodType ? { ...item, ...data } : item)),
-        })
+          bloodInventory: get().bloodInventory.map((item) =>
+            item.type === bloodType ? { ...item, ...data } : item
+          ),
+        });
 
         // If blood type becomes critical, notify eligible donors
         if (data.status === "Critical") {
           const eligibleDonors = get().users.filter(
             (user) =>
-              user.bloodType === bloodType && (!user.nextEligibleDate || new Date(user.nextEligibleDate) <= new Date()),
-          )
+              user.bloodType === bloodType &&
+              (!user.nextEligibleDate ||
+                new Date(user.nextEligibleDate) <= new Date())
+          );
 
           eligibleDonors.forEach((user) => {
             get().addNotification({
@@ -618,8 +655,8 @@ export const useStore = create<StoreState>()(
               title: "Urgent Blood Need",
               message: `Your blood type (${bloodType}) is critically needed. Please consider donating soon.`,
               type: "Urgent",
-            })
-          })
+            });
+          });
         }
       },
 
@@ -658,17 +695,18 @@ export const useStore = create<StoreState>()(
         const newRequest = {
           ...request,
           id: `REQ-${Math.floor(1000 + Math.random() * 9000)}`,
-        }
+        };
 
-        set({ bloodRequests: [...get().bloodRequests, newRequest] })
+        set({ bloodRequests: [...get().bloodRequests, newRequest] });
 
         // Notify eligible donors for critical and high urgency requests
         if (request.urgency === "Critical" || request.urgency === "High") {
           const eligibleDonors = get().users.filter(
             (user) =>
               user.bloodType === request.bloodType &&
-              (!user.nextEligibleDate || new Date(user.nextEligibleDate) <= new Date()),
-          )
+              (!user.nextEligibleDate ||
+                new Date(user.nextEligibleDate) <= new Date())
+          );
 
           eligibleDonors.forEach((user) => {
             get().addNotification({
@@ -676,17 +714,17 @@ export const useStore = create<StoreState>()(
               title: `${request.urgency} Blood Need`,
               message: `${request.hospital} urgently needs ${request.units} units of ${request.bloodType} blood.`,
               type: "Urgent",
-            })
-          })
+            });
+          });
         }
       },
 
       updateBloodRequest: (requestId, data) => {
         set({
           bloodRequests: get().bloodRequests.map((request) =>
-            request.id === requestId ? { ...request, ...data } : request,
+            request.id === requestId ? { ...request, ...data } : request
           ),
-        })
+        });
       },
 
       // Notifications
@@ -694,7 +732,7 @@ export const useStore = create<StoreState>()(
         {
           id: "notif-1",
           userId: "user1",
-          title: "Welcome to LifeFlow",
+          title: "Welcome to roktoshetu",
           message: "Thank you for joining our blood donation platform.",
           date: "2024-04-20",
           read: true,
@@ -704,7 +742,8 @@ export const useStore = create<StoreState>()(
           id: "notif-2",
           userId: "user1",
           title: "Upcoming Appointment",
-          message: "You have an appointment scheduled for May 30, 2024 at 10:30 AM.",
+          message:
+            "You have an appointment scheduled for May 30, 2024 at 10:30 AM.",
           date: "2024-04-25",
           read: false,
           type: "Appointment",
@@ -717,21 +756,25 @@ export const useStore = create<StoreState>()(
           id: `notif-${generateId()}`,
           date: new Date().toISOString().split("T")[0],
           read: false,
-        }
+        };
 
-        set({ notifications: [...get().notifications, newNotification] })
+        set({ notifications: [...get().notifications, newNotification] });
       },
 
       markNotificationAsRead: (notificationId) => {
         set({
           notifications: get().notifications.map((notification) =>
-            notification.id === notificationId ? { ...notification, read: true } : notification,
+            notification.id === notificationId
+              ? { ...notification, read: true }
+              : notification
           ),
-        })
+        });
       },
 
       getUserNotifications: (userId) => {
-        return get().notifications.filter((notification) => notification.userId === userId)
+        return get().notifications.filter(
+          (notification) => notification.userId === userId
+        );
       },
 
       // Achievements
@@ -784,18 +827,20 @@ export const useStore = create<StoreState>()(
       updateAchievement: (achievementId, data) => {
         set({
           achievements: get().achievements.map((achievement) =>
-            achievement.id === achievementId ? { ...achievement, ...data } : achievement,
+            achievement.id === achievementId
+              ? { ...achievement, ...data }
+              : achievement
           ),
-        })
+        });
       },
 
       getUserAchievements: (userId) => {
         // In a real app, achievements would be linked to users
         // For this demo, we'll return all achievements for the demo user
         if (userId === "user1") {
-          return get().achievements
+          return get().achievements;
         }
-        return []
+        return [];
       },
 
       // Health Records
@@ -807,7 +852,8 @@ export const useStore = create<StoreState>()(
           bloodPressure: "118/78 mmHg",
           pulse: "72 bpm",
           weight: "165 lbs",
-          notes: "All parameters normal. Eligible for next donation after June 20, 2024.",
+          notes:
+            "All parameters normal. Eligible for next donation after June 20, 2024.",
         },
         {
           userId: "user1",
@@ -830,18 +876,18 @@ export const useStore = create<StoreState>()(
       ],
 
       addHealthRecord: (record) => {
-        set({ healthRecords: [...get().healthRecords, record] })
+        set({ healthRecords: [...get().healthRecords, record] });
       },
 
       getUserHealthRecords: (userId) => {
-        return get().healthRecords.filter((record) => record.userId === userId)
+        return get().healthRecords.filter((record) => record.userId === userId);
       },
 
       // Donation Centers
       donationCenters: mockDonationCenters,
     }),
     {
-      name: "lifeflow-storage",
-    },
-  ),
-)
+      name: "roktoshetu-storage",
+    }
+  )
+);

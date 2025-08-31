@@ -1,6 +1,6 @@
-# LifeFlow - Blood Donation Management System
+# Rokto Shetu - Blood Donation Management System
 
-LifeFlow is a modern, scalable blood donation management system built with Next.js 15, TypeScript, and MongoDB. The system helps manage blood donations, track inventory, and connect donors with hospitals efficiently.
+Rokto Shetu is a modern, scalable blood donation management system built with Next.js 15, TypeScript, and MongoDB. The system helps manage blood donations, track inventory, and connect donors with hospitals efficiently.
 
 ## 🚀 Features
 
@@ -175,4 +175,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@lifeflow.com or create a support ticket in the system.
+For support, email support@Rokto Shetu.com or create a support ticket in the system.

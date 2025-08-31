@@ -1,16 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import Logo from "@/components/header/Logo"
-import DesktopNav from "@/components/header/DesktopNav"
-import MobileNav from "@/components/header/MobileNav"
-import UserMenu from "@/components/header/UserMenu"
-import AuthButtons from "@/components/header/AuthButtons"
-import SearchPanel from "@/components/layout/SearchPanel"
-import LocationSelector from "@/components/header/LocationSelector"
-import MobileMenuToggle from "@/components/header/MobileMenuToggle"
+
+
+
 import { useScrollPosition } from "@/hooks/useScrollPosition"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/components/auth/auth-provider"
+import Logo from "../Logo"
+import DesktopNav from "../DesktopNav"
+import UserMenu from "../UserMenu"
+import MobileNav from "../MobileNav"
+import LocationSelector from "../LocationSelector"
+import SearchPanel from "./SearchPanel"
+import AuthButtons from "../AuthButtons"
+import MobileMenuToggle from "../MobileMenuToggle"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -65,7 +68,6 @@ export function Header() {
         onClose={() => setMobileMenuOpen(false)}
         isAuthenticated={showAuthenticatedUI}
         user={user ?? {}}
-        notificationCount={notificationCount}
       />
     </header>
   )

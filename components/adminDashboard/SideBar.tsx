@@ -52,7 +52,7 @@ function SideBar({ selectedTab, setSelectedTab }: SideBarProps) {
                 "hover:bg-red-50 hover:text-red-600",
                 "active:scale-[0.98]",
                 selectedTab === value &&
-                  "bg-red-100 text-red-600 hover:bg-red-100"
+                "bg-red-100 text-red-600 hover:bg-red-100"
               )}
               onClick={() => setSelectedTab(value)}
             >
@@ -74,7 +74,7 @@ function SideBar({ selectedTab, setSelectedTab }: SideBarProps) {
           </div>
           <div>
             <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-muted-foreground">admin@lifeflow.com</p>
+            <p className="text-xs text-muted-foreground">admin@roktoshetu.com</p>
           </div>
         </div>
       </div>

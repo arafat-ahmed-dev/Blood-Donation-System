@@ -38,7 +38,7 @@ export default function AuthPage() {
           <div className="flex items-center justify-center mb-4">
             <Image src="/logo.svg" height={32} width={32} alt="logo" />
             <h1 className="text-3xl font-bold ml-2 blood-gradient-text">
-              LifeFlow
+              Rokto Shetu
             </h1>
           </div>
           <h2 className="text-2xl font-bold mb-2">Welcome</h2>

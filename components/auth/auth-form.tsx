@@ -33,8 +33,6 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/components/auth/auth-provider";
-import { useAuthErrorToast } from "@/lib/auth-errors";
-import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
@@ -287,7 +285,6 @@ export function AuthForm() {
   );
   const router = useRouter();
   const { toast } = useToast();
-  const { handleApiError, showAuthError } = useAuthErrorToast();
   const { register } = useAuth();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/profile";

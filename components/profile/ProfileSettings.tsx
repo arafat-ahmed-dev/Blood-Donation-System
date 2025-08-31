@@ -1,5 +1,5 @@
 "use client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/auth-provider";
 import { useProfile } from "@/hooks/useProfile";
 import { useState } from "react";
 import {
